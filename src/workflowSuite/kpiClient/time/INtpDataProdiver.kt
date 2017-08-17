@@ -1,5 +1,3 @@
-package workflowSuite.kpiClient.time
-
-interface INtpDataProdiver {
+interface INtpDataProvider {
     fun GetNtpData(): NtpData
 }

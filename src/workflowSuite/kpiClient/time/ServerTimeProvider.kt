@@ -1,9 +1,7 @@
-package workflowSuite.kpiClient.time
-
 import java.net.Socket
 import java.time.Instant
 
-class ServerTimeProvider(private val configuration: TimeServerConfiguration) : INtpDataProdiver {
+class ServerTimeProvider(private val configuration: TimeServerConfiguration) : INtpDataProvider {
     override fun GetNtpData(): NtpData {
 
         val socket = Socket(configuration.endpoint.host, configuration.endpoint.port)

@@ -1,5 +1,3 @@
-package workflowSuite.kpiClient.time
-
 import java.nio.ByteBuffer
 import java.time.Instant
 import java.util.*
@@ -29,11 +27,11 @@ private const val DaysTo1899 = DaysPer400Years * 4 + DaysPer100Years * 3 - 367
 private const val DoubleDateOffset = DaysTo1899 * TicksPerDay
 
 fun fromOADate(bytes: ByteArray, startIndex: Int): Instant {
-    val d = ByteBuffer.wrap(bytes, startIndex, 8).getDouble()
+    val d = ByteBuffer.wrap(bytes, startIndex, 8).double
     return fromOADate(d)
 }
 
-fun fromOADate(time: Double): Instant {
+private fun fromOADate(time: Double): Instant {
     //if (time >= 2958466 || time <= -657435)
     //throw
     var millis = (time * MillisPerDay + if (time >= 0.0) 0.5 else -0.5).toLong()
