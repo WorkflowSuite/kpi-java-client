@@ -1,0 +1,1 @@
+[![Build Status](https://travis-ci.org/WorkflowSuite/kpi-java-client.svg?branch=master)](https://travis-ci.org/WorkflowSuite/kpi-java-client)
