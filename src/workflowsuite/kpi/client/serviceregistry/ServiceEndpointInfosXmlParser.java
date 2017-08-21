@@ -4,8 +4,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.util.ArrayList;
-
 public final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
 
     private String currentElement = "";
@@ -15,7 +13,7 @@ public final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
 
     @Override
     public void startDocument() throws SAXException {
-        serviceInfo = new ServiceEndpointsInfo("", "", new ArrayList<EndpointConfiguration>(0), new ArrayList<TransportSettings>(0));
+        serviceInfo = new ServiceEndpointsInfo();
     }
 
     @Override
@@ -26,9 +24,9 @@ public final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
         if (currentElement == "DeploymentUnitName")
-            serviceInfo.setDeploymentUnitName(new String(ch, start, length));
+            serviceInfo.deploymentUnitName = new String(ch, start, length);
         else if (currentElement == "ServiceKind")
-            serviceInfo.setServiceKind(new String(ch, start, length));
+            serviceInfo.serviceKind = new String(ch, start, length);
     }
 
     @Override
