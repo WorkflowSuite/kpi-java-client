@@ -5,12 +5,26 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>workflowSuite</groupId>
-    <artifactId>kpiClient</artifactId>
+    <groupId>ru.workflowsuite</groupId>
+    <artifactId>kpi-client</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>Workflow Suite KPI Client</name>
 
+    <name>Workflow Suite KPI Client</name>
+    <description>Workflow Suite KPI client library allows Java application to interface with Workflow KPI Server</description>
+    <url>https://workflowsuite.ru</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/WorkflowSuite/kpi-java-client</url>
+    </scm>
 
     <properties>
         <kotlin.version>1.1.4</kotlin.version>

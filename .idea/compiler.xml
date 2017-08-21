@@ -6,11 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="kpiClient" />
+        <module name="kpi-client" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="kpiClient" target="1.5" />
+      <module name="kpi-client" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>
