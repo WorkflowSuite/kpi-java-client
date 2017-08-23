@@ -1,11 +1,14 @@
 package workflowsuite.kpi.client.time;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.time.Duration;
 import java.time.Instant;
 
 public final class TimeOffsetCalculator implements ITimeOffsetCalculator {
 
-    public final TimeSyncData calculateTimeOffset(NtpData data) {
+    @NotNull
+    public final TimeSyncData calculateTimeOffset(@NotNull NtpData data) {
         Instant t1 = data.getRequestTransmission();
         Instant t2 = data.getRequestReception();
         Instant t3 = data.getResponseTransmission();

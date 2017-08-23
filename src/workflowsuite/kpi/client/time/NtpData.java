@@ -1,16 +1,18 @@
 package workflowsuite.kpi.client.time;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.time.Instant;
 
-public final class NtpData {
-
+final class NtpData {
     private final Instant _requestTransmission;
     private final Instant _requestReception;
     private final Instant _responseTransmission;
     private final Instant _responseReception;
 
-    public NtpData(Instant requestTransmission, Instant requestReception,
-                   Instant responseTransmission, Instant responseReception) {
+    NtpData(@NotNull Instant requestTransmission, @NotNull Instant requestReception,
+            @NotNull Instant responseTransmission, @NotNull Instant responseReception) {
 
         _requestTransmission = requestTransmission;
         _requestReception = requestReception;
@@ -18,18 +20,26 @@ public final class NtpData {
         _responseReception = responseReception;
     }
 
+    @Contract(pure = true)
+    @NotNull
     public Instant getRequestTransmission() {
         return _requestTransmission;
     }
 
+    @Contract(pure = true)
+    @NotNull
     public Instant getRequestReception() {
         return _requestReception;
     }
 
+    @Contract(pure = true)
+    @NotNull
     public Instant getResponseTransmission() {
         return _responseTransmission;
     }
 
+    @Contract(pure = true)
+    @NotNull
     public Instant getResponseReception() {
         return _responseReception;
     }

@@ -1,14 +1,14 @@
 package workflowsuite.kpi.client.serviceregistry;
 
-import java.net.URL;
+import java.net.URI;
 
 public final class EndpointConfiguration {
 
-    private final String _serviceContract;
-    private final URL _address;
-    private final String _transportSettingsCode;
+    private String _serviceContract;
+    private URI _address;
+    private String _transportSettingsCode;
 
-    public EndpointConfiguration(String serviceContract, URL address, String transportSettingsCode) {
+    public EndpointConfiguration(String serviceContract, URI address, String transportSettingsCode) {
 
         _serviceContract = serviceContract;
         _address = address;
@@ -19,11 +19,23 @@ public final class EndpointConfiguration {
         return _serviceContract;
     }
 
-    public URL getAddress() {
+    public URI getAddress() {
         return _address;
     }
 
     public String getTransportSettingsCode() {
         return _transportSettingsCode;
+    }
+
+    public void setServiceContract(String serviceContract) {
+        _serviceContract = serviceContract;
+    }
+
+    public void setAddress(URI address) {
+        _address = address;
+    }
+
+    public void setTransportSettingsCode(String transportSettingsCode) {
+        _transportSettingsCode = transportSettingsCode;
     }
 }

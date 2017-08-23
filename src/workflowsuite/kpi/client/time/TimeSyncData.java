@@ -1,23 +1,30 @@
 package workflowsuite.kpi.client.time;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.time.Duration;
 
 public final class TimeSyncData {
 
-    private final Duration _offset;
-    private final Duration _halfDelta;
+    private final Duration offset;
+    private final Duration halfDelta;
 
-    public TimeSyncData(Duration offset, Duration halfDelta) {
+    public TimeSyncData(@NotNull Duration offset,@NotNull Duration halfDelta) {
 
-        _offset = offset;
-        _halfDelta = halfDelta;
+        this.offset = offset;
+        this.halfDelta = halfDelta;
     }
 
+    @Contract(pure = true)
+    @NotNull
     public Duration getOffset() {
-        return _offset;
+        return this.offset;
     }
 
+    @Contract(pure = true)
+    @NotNull
     public Duration getHalfDelta() {
-        return _halfDelta;
+        return this.halfDelta;
     }
 }

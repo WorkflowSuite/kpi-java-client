@@ -1,11 +1,10 @@
 package workflowsuite.kpi.client.serviceregistry;
 
 public final class TransportSettings {
-
-    private final String _typeCode;
-    private final String _name;
-    private final String _code;
-    private final String _body;
+    private String _typeCode;
+    private String _name;
+    private String _code;
+    private String _body;
 
     public TransportSettings(String typeCode, String name, String code, String body) {
 
@@ -29,5 +28,21 @@ public final class TransportSettings {
 
     public String getBody() {
         return _body;
+    }
+
+    public void setTypeCode(String typeCode) {
+        this._typeCode = typeCode;
+    }
+
+    public void setName(String name) {
+        this._name = name;
+    }
+
+    public void setCode(String code) {
+        this._code = code;
+    }
+
+    public void setBody(String body) {
+        this._body = body;
     }
 }
