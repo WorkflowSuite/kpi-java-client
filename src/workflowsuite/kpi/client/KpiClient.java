@@ -15,17 +15,17 @@ import java.net.URI;
 import java.time.Instant;
 
 public final class KpiClient {
-    private final int DEFAULT_BUFFER_SIZE = 1024 * 16;
+    private static final int DEFAULT_BUFFER_SIZE = 1024 * 16;
+    private static final long SEND_FAILURE_RELAXATION_TIMEOUT_MILLIS = 1000;
 
     private final KpiMessageBuffer buffer;
-    private final long sendFailureRelaxationTimeoutMillis;
+
     private final Thread consumeMessagesThread;
     private final MessageProducer messageProducer;
     private final TimeSynchronizer timeSynchronizer;
 
     public KpiClient(URI serviceRegistryUri) {
         this.buffer = new KpiMessageBuffer(DEFAULT_BUFFER_SIZE);
-        this.sendFailureRelaxationTimeoutMillis = 1000;
         ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient(serviceRegistryUri);
         this.messageProducer = new RabbitProducer(
                 new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME));
@@ -45,9 +45,11 @@ public final class KpiClient {
         Instant now = Instant.now();
         KpiMessage message = new KpiMessage();
         message.setCheckpointCode(checkpointCode);
-        message.setClientEventTime(now);
-        message.setSynchronizedEventTime(now);
         message.setSessionId(sessionId);
+        message.setClientEventTime(now);
+
+        Instant adjustedTime = now.plus(this.timeSynchronizer.getOffset());
+        message.setSynchronizedEventTime(adjustedTime);
 
         return this.buffer.offer(message);
     }
@@ -57,17 +59,13 @@ public final class KpiClient {
             try {
                 KpiMessage message = this.buffer.take();
                 if (message != null) {
-                    Instant utcTime = message.getSynchronizedEventTime();
-                    Instant adjustedTime = utcTime.plus(this.timeSynchronizer.getOffset());
-                    message.setSynchronizedEventTime(adjustedTime);
                     if (!this.messageProducer.TrySendMessage(message)) {
-                        Thread.sleep(this.sendFailureRelaxationTimeoutMillis);
+                        Thread.sleep(this.SEND_FAILURE_RELAXATION_TIMEOUT_MILLIS);
                     }
                 }
             } catch (InterruptedException e) {
                 return;
             }
-
         }
     }
 }

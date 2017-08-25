@@ -9,7 +9,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public final class TimeSynchronizer {
-    private final ConfigurationProvider<TimeServerConfiguration> configurationProvider;
     private final INtpDataProvider ntpDataProvider;
     private final ITimeOffsetCalculator timeOffsetCalculator;
 
@@ -18,9 +17,9 @@ public final class TimeSynchronizer {
     public TimeSynchronizer(ConfigurationProvider<TimeServerConfiguration> configurationProvider,
                             INtpDataProvider ntpDataProvider, ITimeOffsetCalculator timeOffsetCalculator) {
 
-        this.configurationProvider = configurationProvider;
         this.ntpDataProvider = ntpDataProvider;
         this.timeOffsetCalculator = timeOffsetCalculator;
+        this.lastOffset = Duration.ofSeconds(0);
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         long timeoutSeconds = TimeServerConfiguration.DEFAULT_CLIENT_SYNC_INTERVAL_SECONDS;
         GetConfigurationResult<TimeServerConfiguration> configurationResult = configurationProvider.tryGetValidConfiguration();
