@@ -1,8 +1,5 @@
 package workflowsuite.kpi.client.bits;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 public final class BitConverter {
 
     public static double byteArrayToDoubleLE(byte[] data, int startIndex) {
@@ -10,8 +7,13 @@ public final class BitConverter {
     }
 
     public static long byteArrayToLongLE(byte[] data, int startIndex) {
-        ByteBuffer b = ByteBuffer.wrap(data, startIndex, 8);
-        b.order(ByteOrder.LITTLE_ENDIAN);
-        return b.getLong();
+        return ((((long)data[startIndex + 7]       ) << 56) |
+                (((long)data[startIndex + 6] & 0xff) << 48) |
+                (((long)data[startIndex + 5] & 0xff) << 40) |
+                (((long)data[startIndex + 4] & 0xff) << 32) |
+                (((long)data[startIndex + 3] & 0xff) << 24) |
+                (((long)data[startIndex + 2] & 0xff) << 16) |
+                (((long)data[startIndex + 1] & 0xff) <<  8) |
+                (((long)data[startIndex ]    & 0xff)      ));
     }
 }
