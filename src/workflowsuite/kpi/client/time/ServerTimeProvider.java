@@ -14,38 +14,43 @@ import java.time.Instant;
 
 public final class ServerTimeProvider implements INtpDataProvider {
     private static final int BUFFER_SIZE = 16;
+    private static final int CONNECTION_TIMEOUT_MILLIS = 2000;
+    private static final int SOCKET_TIMEOUT_MILLIS = 5000;
 
-    private final ConfigurationProvider<TimeServerConfiguration> _configurationProvider;
+    private final ConfigurationProvider<TimeServerConfiguration> configurationProvider;
+    private final byte[] buffer;
 
     public ServerTimeProvider(@NotNull ConfigurationProvider<TimeServerConfiguration> configuration) {
-        _configurationProvider = configuration;
+        this.configurationProvider = configuration;
+        this.buffer = new byte[BUFFER_SIZE];
     }
 
     @NotNull
     public final NtpData GetNtpData() throws ConfigurationNotFoundException, IOException {
 
-        GetConfigurationResult<TimeServerConfiguration> result = _configurationProvider.tryGetValidConfiguration();
+        GetConfigurationResult<TimeServerConfiguration> result = configurationProvider.tryGetValidConfiguration();
 
         if (result.getSuccess()) {
             TimeServerConfiguration configuration = result.getConfiguration();
             Socket socket = new Socket();
             try {
                 socket.setReceiveBufferSize(BUFFER_SIZE);
+                socket.setKeepAlive(false);
+                socket.setSoTimeout(SOCKET_TIMEOUT_MILLIS);
                 Instant requestTransmission = Instant.now();
-                socket.connect(new InetSocketAddress(configuration.getEndpoint().getHost(), configuration.getEndpoint().getPort()), 1000);
+                socket.connect(new InetSocketAddress(configuration.getEndpoint().getHost(), configuration.getEndpoint().getPort()), CONNECTION_TIMEOUT_MILLIS);
                 InputStream inputStream = socket.getInputStream();
-                byte[] bytes = new byte[BUFFER_SIZE];
-                int bytesRead =  inputStream.read(bytes);
+                int bytesRead =  inputStream.read(this.buffer);
                 if (bytesRead == BUFFER_SIZE) {
                     Instant responseReception = Instant.now();
-                    Instant requestReception = OleAutomationDateUtil.fromOADate(BitConverter.byteArrayToDoubleLE(bytes, 0));
-                    Instant responseTransmission = OleAutomationDateUtil.fromOADate(BitConverter.byteArrayToDoubleLE(bytes, 8));
+                    Instant requestReception = OleAutomationDateUtil.fromOADate(BitConverter.byteArrayToDoubleLE(this.buffer, 0));
+                    Instant responseTransmission = OleAutomationDateUtil.fromOADate(BitConverter.byteArrayToDoubleLE(this.buffer, 8));
 
                     return new NtpData(requestTransmission, requestReception,
                             responseTransmission, responseReception);
                 }
                 else {
-                    throw new ConfigurationNotFoundException();
+                    throw new ConfigurationNotFoundException(); // TODO: make specialized exception
                 }
             } finally {
                 socket.close();
