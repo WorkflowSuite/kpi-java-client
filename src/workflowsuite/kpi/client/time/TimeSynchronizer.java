@@ -8,15 +8,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public final class TimeSynhronizer {
+public final class TimeSynchronizer {
     private final ConfigurationProvider<TimeServerConfiguration> configurationProvider;
     private final INtpDataProvider ntpDataProvider;
     private final ITimeOffsetCalculator timeOffsetCalculator;
 
     private Duration lastOffset;
 
-    public TimeSynhronizer(ConfigurationProvider<TimeServerConfiguration> configurationProvider,
-                           INtpDataProvider ntpDataProvider, ITimeOffsetCalculator timeOffsetCalculator) {
+    public TimeSynchronizer(ConfigurationProvider<TimeServerConfiguration> configurationProvider,
+                            INtpDataProvider ntpDataProvider, ITimeOffsetCalculator timeOffsetCalculator) {
 
         this.configurationProvider = configurationProvider;
         this.ntpDataProvider = ntpDataProvider;

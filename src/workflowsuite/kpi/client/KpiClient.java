@@ -8,7 +8,7 @@ import workflowsuite.kpi.client.settings.ConfigurationProvider;
 import workflowsuite.kpi.client.time.ServerTimeProvider;
 import workflowsuite.kpi.client.time.TimeServerConfiguration;
 import workflowsuite.kpi.client.time.TimeServerRefreshableConfigurationProvider;
-import workflowsuite.kpi.client.time.TimeSynhronizer;
+import workflowsuite.kpi.client.time.TimeSynchronizer;
 import workflowsuite.kpi.client.time.TimeOffsetCalculator;
 
 import java.net.URI;
@@ -21,7 +21,7 @@ public final class KpiClient {
     private final long sendFailureRelaxationTimeoutMillis;
     private final Thread consumeMessagesThread;
     private final MessageProducer messageProducer;
-    private final TimeSynhronizer timeSynchronizer;
+    private final TimeSynchronizer timeSynchronizer;
 
     public KpiClient(URI serviceRegistryUri) {
         this.buffer = new KpiMessageBuffer(DEFAULT_BUFFER_SIZE);
@@ -31,7 +31,7 @@ public final class KpiClient {
                 new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME));
         ConfigurationProvider<TimeServerConfiguration> timeServerConfiguration =
                 new TimeServerRefreshableConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME);
-        this.timeSynchronizer = new TimeSynhronizer(
+        this.timeSynchronizer = new TimeSynchronizer(
                 timeServerConfiguration,
                 new ServerTimeProvider(timeServerConfiguration),
                 new TimeOffsetCalculator());
