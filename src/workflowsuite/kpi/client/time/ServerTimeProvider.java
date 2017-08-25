@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.time.Instant;
 
 public final class ServerTimeProvider implements INtpDataProvider {
+    private static final int BUFFER_SIZE = 16;
 
     private final ConfigurationProvider<TimeServerConfiguration> _configurationProvider;
 
@@ -28,22 +29,28 @@ public final class ServerTimeProvider implements INtpDataProvider {
         if (result.getSuccess()) {
             TimeServerConfiguration configuration = result.getConfiguration();
             Socket socket = new Socket();
-            Instant requestTransmission = Instant.now();
-            socket.connect(new InetSocketAddress(configuration.getEndpoint().getHost(), configuration.getEndpoint().getPort()), 1000);
-            InputStream inputStream = socket.getInputStream();
-            byte[] bytes = new byte[16];
-            int bytesRead =  inputStream.read(bytes);
-            if (bytesRead == 16) {
-                Instant responseReception = Instant.now();
-                Instant requestReception = OleAutomationDateUtil.fromOADate(BitConverter.byteArrayToDoubleLE(bytes, 0));
-                Instant responseTransmission = OleAutomationDateUtil.fromOADate(BitConverter.byteArrayToDoubleLE(bytes, 8));
+            try {
+                socket.setReceiveBufferSize(BUFFER_SIZE);
+                Instant requestTransmission = Instant.now();
+                socket.connect(new InetSocketAddress(configuration.getEndpoint().getHost(), configuration.getEndpoint().getPort()), 1000);
+                InputStream inputStream = socket.getInputStream();
+                byte[] bytes = new byte[BUFFER_SIZE];
+                int bytesRead =  inputStream.read(bytes);
+                if (bytesRead == BUFFER_SIZE) {
+                    Instant responseReception = Instant.now();
+                    Instant requestReception = OleAutomationDateUtil.fromOADate(BitConverter.byteArrayToDoubleLE(bytes, 0));
+                    Instant responseTransmission = OleAutomationDateUtil.fromOADate(BitConverter.byteArrayToDoubleLE(bytes, 8));
 
-                return new NtpData(requestTransmission, requestReception,
-                        responseTransmission, responseReception);
+                    return new NtpData(requestTransmission, requestReception,
+                            responseTransmission, responseReception);
+                }
+                else {
+                    throw new ConfigurationNotFoundException();
+                }
+            } finally {
+                socket.close();
             }
-            else {
-                throw new ConfigurationNotFoundException();
-            }
+
         }
 
         throw new ConfigurationNotFoundException();

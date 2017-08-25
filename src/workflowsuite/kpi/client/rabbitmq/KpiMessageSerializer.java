@@ -5,7 +5,7 @@ import workflowsuite.kpi.client.KpiMessage;
 
 final class KpiMessageSerializer {
     private static final int HEADER_SIZE = Integer.BYTES;
-    private static final byte[] HEADER_BYTES = new byte[]{(byte) 0xED, (byte)0xFE, 0x00, 0x00};
+    private static final byte[] HEADER_BYTES = new byte[]{-19, -2, 0, 0};
 
     private static final int PACKAGE_VERSION_SIZE = Short.BYTES;
     private static final short PACKAGE_VERSION = 1;
