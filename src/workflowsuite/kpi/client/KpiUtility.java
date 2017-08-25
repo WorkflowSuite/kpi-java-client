@@ -1,4 +1,4 @@
-package workflowsuite.kpi;
+package workflowsuite.kpi.client;
 
 import java.net.URI;
 import java.net.URISyntaxException;

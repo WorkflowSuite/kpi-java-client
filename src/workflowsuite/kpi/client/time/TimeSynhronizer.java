@@ -1,7 +1,7 @@
 package workflowsuite.kpi.client.time;
 
 import workflowsuite.kpi.client.settings.GetConfigurationResult;
-import workflowsuite.kpi.client.settings.IConfigurationProvider;
+import workflowsuite.kpi.client.settings.ConfigurationProvider;
 
 import java.time.Duration;
 import java.util.concurrent.Executors;
@@ -9,13 +9,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public final class TimeSynhronizer {
-    private final IConfigurationProvider<TimeServerConfiguration> configurationProvider;
+    private final ConfigurationProvider<TimeServerConfiguration> configurationProvider;
     private final INtpDataProvider ntpDataProvider;
     private final ITimeOffsetCalculator timeOffsetCalculator;
 
     private Duration lastOffset;
 
-    public TimeSynhronizer(IConfigurationProvider<TimeServerConfiguration> configurationProvider,
+    public TimeSynhronizer(ConfigurationProvider<TimeServerConfiguration> configurationProvider,
                            INtpDataProvider ntpDataProvider, ITimeOffsetCalculator timeOffsetCalculator) {
 
         this.configurationProvider = configurationProvider;
@@ -23,12 +23,14 @@ public final class TimeSynhronizer {
         this.timeOffsetCalculator = timeOffsetCalculator;
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         long timeoutSeconds = TimeServerConfiguration.DEFAULT_CLIENT_SYNC_INTERVAL_SECONDS;
-        GetConfigurationResult<TimeServerConfiguration> configurationResult = configurationProvider.TryGetValidConfiguration();
+        GetConfigurationResult<TimeServerConfiguration> configurationResult = configurationProvider.tryGetValidConfiguration();
         if (configurationResult.getSuccess()) {
             timeoutSeconds = configurationResult.getConfiguration().getClientTimeSyncIntervalSeconds();
         }
         scheduler.scheduleWithFixedDelay(this::Synchronize, 0, timeoutSeconds, TimeUnit.SECONDS);
     }
+
+    public Duration getOffset() {return this.lastOffset;}
 
     private void Synchronize() {
         try {

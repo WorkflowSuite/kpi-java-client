@@ -1,41 +1,48 @@
 package workflowsuite.kpi.client.serviceregistry;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
 import java.net.URI;
 
 public final class EndpointConfiguration {
 
-    private String _serviceContract;
-    private URI _address;
-    private String _transportSettingsCode;
+    private String serviceContract = "";
+    private URI address;
+    private String transportSettingsCode = "";
 
     public EndpointConfiguration(String serviceContract, URI address, String transportSettingsCode) {
 
-        _serviceContract = serviceContract;
-        _address = address;
-        _transportSettingsCode = transportSettingsCode;
+        this.serviceContract = serviceContract;
+        this.address = address;
+        this.transportSettingsCode = transportSettingsCode;
     }
 
-    public String getServiceContract() {
-        return _serviceContract;
-    }
+    @Contract(pure = true)
+    @NotNull
+    public String getServiceContract() { return this.serviceContract; }
 
+    @Contract(pure = true)
+    @NotNull
     public URI getAddress() {
-        return _address;
+        return this.address;
     }
 
+    @Contract(pure = true)
+    @NotNull
     public String getTransportSettingsCode() {
-        return _transportSettingsCode;
+        return this.transportSettingsCode;
     }
 
-    public void setServiceContract(String serviceContract) {
-        _serviceContract = serviceContract;
+    public void setServiceContract(@NotNull String serviceContract) {
+        this.serviceContract = serviceContract;
     }
 
-    public void setAddress(URI address) {
-        _address = address;
+    public void setAddress(@NotNull URI address) {
+        this.address = address;
     }
 
-    public void setTransportSettingsCode(String transportSettingsCode) {
-        _transportSettingsCode = transportSettingsCode;
+    public void setTransportSettingsCode(@NotNull String transportSettingsCode) {
+        this.transportSettingsCode = transportSettingsCode;
     }
 }

@@ -1,38 +1,28 @@
 package workflowsuite.kpi.client;
 
-import workflowsuite.kpi.KpiPoint;
-
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 public final class KpiMessage {
-    private KpiPoint point;
-    private LocalDateTime localTime;
-    private Instant UtcTime;
+    private String checkpointCode;
+    private Instant clientEventTime;
+    private Instant synchronizedEventTime;
     private String sessionId;
 
-    public KpiPoint getPoint() {
-        return point;
+
+    public Instant getClientEventTime() {
+        return clientEventTime;
     }
 
-    public void setPoint(KpiPoint point) {
-        this.point = point;
+    public void setClientEventTime(Instant clientEventTime) {
+        this.clientEventTime = clientEventTime;
     }
 
-    public LocalDateTime getLocalTime() {
-        return localTime;
+    public Instant getSynchronizedEventTime() {
+        return synchronizedEventTime;
     }
 
-    public void setLocalTime(LocalDateTime localTime) {
-        this.localTime = localTime;
-    }
-
-    public Instant getUtcTime() {
-        return UtcTime;
-    }
-
-    public void setUtcTime(Instant utcTime) {
-        UtcTime = utcTime;
+    public void setSynchronizedEventTime(Instant synchronizedEventTime) {
+        this.synchronizedEventTime = synchronizedEventTime;
     }
 
     public String getSessionId() {
@@ -43,13 +33,11 @@ public final class KpiMessage {
         this.sessionId = sessionId;
     }
 
-    public boolean isTimeAdjusted() {
-        return isTimeAdjusted;
+    public String getCheckpointCode() {
+        return checkpointCode;
     }
 
-    public void setTimeAdjusted(boolean timeAdjusted) {
-        isTimeAdjusted = timeAdjusted;
+    public void setCheckpointCode(String checkpointCode) {
+        this.checkpointCode = checkpointCode;
     }
-
-    private boolean isTimeAdjusted;
 }

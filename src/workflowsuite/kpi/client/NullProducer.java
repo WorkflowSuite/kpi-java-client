@@ -1,9 +1,8 @@
-package workflowsuite.kpi.client.rabbitmq;
+package workflowsuite.kpi.client;
 
 import org.jetbrains.annotations.NotNull;
-import workflowsuite.kpi.client.KpiMessage;
 
-public class NullProducer implements Producer {
+final class NullProducer implements MessageProducer {
     @Override
     public boolean TrySendMessage(@NotNull KpiMessage message) {
         return true;

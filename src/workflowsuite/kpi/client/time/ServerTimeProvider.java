@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import workflowsuite.kpi.client.bits.BitConverter;
 import workflowsuite.kpi.client.settings.ConfigurationNotFoundException;
 import workflowsuite.kpi.client.settings.GetConfigurationResult;
-import workflowsuite.kpi.client.settings.IConfigurationProvider;
+import workflowsuite.kpi.client.settings.ConfigurationProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,16 +14,16 @@ import java.time.Instant;
 
 public final class ServerTimeProvider implements INtpDataProvider {
 
-    private final IConfigurationProvider<TimeServerConfiguration> _configurationProvider;
+    private final ConfigurationProvider<TimeServerConfiguration> _configurationProvider;
 
-    public ServerTimeProvider(@NotNull IConfigurationProvider<TimeServerConfiguration> configuration) {
+    public ServerTimeProvider(@NotNull ConfigurationProvider<TimeServerConfiguration> configuration) {
         _configurationProvider = configuration;
     }
 
     @NotNull
     public final NtpData GetNtpData() throws ConfigurationNotFoundException, IOException {
 
-        GetConfigurationResult<TimeServerConfiguration> result = _configurationProvider.TryGetValidConfiguration();
+        GetConfigurationResult<TimeServerConfiguration> result = _configurationProvider.tryGetValidConfiguration();
 
         if (result.getSuccess()) {
             TimeServerConfiguration configuration = result.getConfiguration();

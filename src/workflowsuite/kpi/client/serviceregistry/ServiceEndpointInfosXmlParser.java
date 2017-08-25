@@ -1,5 +1,6 @@
 package workflowsuite.kpi.client.serviceregistry;
 
+import org.jetbrains.annotations.NotNull;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
@@ -30,7 +31,8 @@ public final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
 
     private ServiceEndpointsInfo _serviceInfo;
 
-    public ServiceEndpointsInfo parse(InputStream inputStream) {
+    @NotNull
+    public ServiceEndpointsInfo parse(@NotNull InputStream inputStream) {
         SAXParserFactory saxFactory = SAXParserFactory.newInstance();
         try {
             saxFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -43,7 +45,7 @@ public final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
         } catch (SAXException e) {
         } catch (IOException e) {
         }
-        return null;
+        return new ServiceEndpointsInfo();
     }
 
     @Override

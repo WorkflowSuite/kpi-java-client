@@ -1,6 +1,6 @@
 package workflowsuite.kpi.client.settings;
 
-public final class SimpleConfigurationProvider<T> implements IConfigurationProvider<T> {
+public final class SimpleConfigurationProvider<T> implements ConfigurationProvider<T> {
     private final T _configuration;
 
     public SimpleConfigurationProvider(T configuration) {
@@ -9,7 +9,7 @@ public final class SimpleConfigurationProvider<T> implements IConfigurationProvi
 
     @org.jetbrains.annotations.NotNull
     @Override
-    public final GetConfigurationResult<T> TryGetValidConfiguration() {
+    public final GetConfigurationResult<T> tryGetValidConfiguration() {
         return new GetConfigurationResult(true, _configuration);
     }
 }
