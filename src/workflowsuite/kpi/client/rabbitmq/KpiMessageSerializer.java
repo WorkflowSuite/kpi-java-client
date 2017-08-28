@@ -70,8 +70,11 @@ final class KpiMessageSerializer {
     }
 
     private static int putUtf8String(byte[] buffer, int startIndex, String s) {
-        int endIndex = putShortLE(buffer, startIndex, (short) s.length());
-        return utf8Encoded(s, buffer, endIndex, buffer.length - endIndex);
+        int pos = startIndex + Short.BYTES;
+        int endIndex = utf8Encoded(s, buffer, pos, buffer.length - pos);
+        putShortLE(buffer, startIndex, (short) (endIndex - pos));
+
+        return endIndex;
     }
 
 
