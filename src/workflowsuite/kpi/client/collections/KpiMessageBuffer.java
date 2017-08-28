@@ -1,6 +1,7 @@
 package workflowsuite.kpi.client.collections;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import workflowsuite.kpi.client.KpiMessage;
 
 import java.util.concurrent.locks.Condition;
@@ -27,7 +28,7 @@ public final class KpiMessageBuffer {
         this.notEmpty = this.lock.newCondition();
     }
 
-    public boolean offer(KpiMessage message) {
+    public boolean offer(@NotNull KpiMessage message) {
 
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -52,18 +53,30 @@ public final class KpiMessageBuffer {
         return true;
     }
 
-    public KpiMessage take() throws InterruptedException {
+    @NotNull
+    public KpiMessage poll() throws InterruptedException {
         final ReentrantLock lock = this.lock;
         lock.lockInterruptibly();
         try {
             while (this.count == 0)
                 notEmpty.await();
+            return this.buffer[this.takeIndex];
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void remove(@NotNull KpiMessage message) {
+        final ReentrantLock lock = this.lock;
+        lock.lock();
+        try {
             final KpiMessage[] items = this.buffer;
-            KpiMessage message = items[this.takeIndex];
-            items[this.takeIndex] = null;
-            this.takeIndex = inc(this.takeIndex);
-            count--;
-            return message;
+            // if not equal - another thred ovewrite message
+            if (items[this.takeIndex] == message) {
+                items[this.takeIndex] = null;
+                this.takeIndex = inc(this.takeIndex);
+                count--;
+            }
         } finally {
             lock.unlock();
         }

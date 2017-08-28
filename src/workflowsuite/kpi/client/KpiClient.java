@@ -57,11 +57,11 @@ public final class KpiClient {
     private void consumeMessages() {
         while (true) {
             try {
-                KpiMessage message = this.buffer.take();
-                if (message != null) {
-                    if (!this.messageProducer.TrySendMessage(message)) {
-                        Thread.sleep(this.SEND_FAILURE_RELAXATION_TIMEOUT_MILLIS);
-                    }
+                KpiMessage message = this.buffer.poll();
+                if (!this.messageProducer.TrySendMessage(message)) {
+                    Thread.sleep(this.SEND_FAILURE_RELAXATION_TIMEOUT_MILLIS);
+                } else {
+                    this.buffer.remove(message);
                 }
             } catch (InterruptedException e) {
                 return;
