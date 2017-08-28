@@ -3,10 +3,10 @@ package workflowsuite.kpi.client;
 import java.time.Instant;
 
 public final class KpiMessage {
-    private String checkpointCode;
-    private Instant clientEventTime;
-    private Instant synchronizedEventTime;
-    private String sessionId;
+    private String checkpointCode = "";
+    private Instant clientEventTime = Instant.MIN;
+    private Instant synchronizedEventTime = Instant.MIN;
+    private String sessionId = "";
 
 
     public Instant getClientEventTime() {
