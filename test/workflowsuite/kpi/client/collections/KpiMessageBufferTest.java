@@ -33,14 +33,14 @@ public class KpiMessageBufferTest {
         Assert.assertEquals(2, buffer.size());
 
         m = buffer.poll();
+        buffer.remove(m);
         Assert.assertEquals("1", m.getSessionId());
         Assert.assertEquals(1, buffer.size());
-        buffer.remove(m);
 
         m = buffer.poll();
+        buffer.remove(m);
         Assert.assertEquals("2", m.getSessionId());
         Assert.assertEquals(0, buffer.size());
-        buffer.remove(m);
     }
 
 }
