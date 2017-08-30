@@ -3,6 +3,7 @@ jdk:
 - oraclejdk8
 notifications:
   email: false
+install: mvn versions:set
 deploy:
   provider: releases
   api_key:
