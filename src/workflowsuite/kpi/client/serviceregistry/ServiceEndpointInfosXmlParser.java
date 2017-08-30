@@ -21,11 +21,11 @@ final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
 
     private enum State {
         NONE,
-        SERVICEENDPOINTSCONFIGURATION,
+        SERVICE_ENDPOINTS_CONFIGURATION,
         ENDPOINTS,
-        EndpointConfiguration,
-        TRANSPORTSETTINGS,
-        TRANSPORTSETTING,
+        ENDPOINT_CONFIGURATION,
+        TRANSPORT_SETTINGS,
+        TRANSPORT_SETTING,
     }
 
     private ServiceEndpointsInfo serviceEndpointsInfo;
@@ -49,7 +49,7 @@ final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
     @Override
     public void startDocument() throws SAXException {
         serviceEndpointsInfo = new ServiceEndpointsInfo();
-        state = State.SERVICEENDPOINTSCONFIGURATION;
+        state = State.SERVICE_ENDPOINTS_CONFIGURATION;
         tempBuffer = new StringBuilder();
     }
 
@@ -59,20 +59,20 @@ final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
         // if local name not equals any, then current element is property name
         switch (qName) {
             case "ServiceEndpointsConfiguration":
-                state = State.SERVICEENDPOINTSCONFIGURATION;
+                state = State.SERVICE_ENDPOINTS_CONFIGURATION;
                 break;
             case "Endpoints":
                 state = State.ENDPOINTS;
                 break;
             case "d2p1:EndpointConfiguration":
-                state = State.EndpointConfiguration;
+                state = State.ENDPOINT_CONFIGURATION;
                 serviceEndpointsInfo.endpoints.add(new EndpointConfiguration("", URI.create(""), ""));
                 break;
             case "TransportSettings":
-                state = State.TRANSPORTSETTINGS;
+                state = State.TRANSPORT_SETTINGS;
                 break;
             case "d2p1:TransportSettings":
-                state = State.TRANSPORTSETTING;
+                state = State.TRANSPORT_SETTING;
                 serviceEndpointsInfo.transportSettigs.add(new TransportSettings("", "", "", ""));
                 break;
             default: break;
@@ -87,13 +87,13 @@ final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         switch (state) {
-            case SERVICEENDPOINTSCONFIGURATION:
+            case SERVICE_ENDPOINTS_CONFIGURATION:
                 FillServiceEnpointConfiguration(qName, tempBuffer);
                 break;
-            case TRANSPORTSETTING:
+            case TRANSPORT_SETTING:
                 FillTransportSetting(qName, tempBuffer);
                 break;
-            case EndpointConfiguration:
+            case ENDPOINT_CONFIGURATION:
                 FillEnpointConfiguration(qName, tempBuffer);
                 break;
             default: break;
@@ -105,16 +105,16 @@ final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
                 state = State.NONE;
                 break;
             case "Endpoints":
-                state = State.SERVICEENDPOINTSCONFIGURATION;
+                state = State.SERVICE_ENDPOINTS_CONFIGURATION;
                 break;
             case "d2p1:EndpointConfiguration":
                 state = State.ENDPOINTS;
                 break;
             case "TransportSettings":
-                state = State.SERVICEENDPOINTSCONFIGURATION;
+                state = State.SERVICE_ENDPOINTS_CONFIGURATION;
                 break;
             case "d2p1:TransportSettings":
-                state = State.TRANSPORTSETTINGS;
+                state = State.TRANSPORT_SETTINGS;
                 break;
             default: break;
         }

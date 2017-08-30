@@ -15,7 +15,7 @@ final class KpiMessageBuffer {
 
     KpiMessageBuffer(int capacity) {
         if (!isPow2(capacity)) {
-            throw new IllegalArgumentException("capacity sould be pow of 2");
+            throw new IllegalArgumentException("capacity should be pow of 2");
         }
         this.buffer = new KpiMessage[capacity];
         this.takeIndex = 0;
@@ -67,7 +67,7 @@ final class KpiMessageBuffer {
         sync.lock();
         try {
             final KpiMessage[] items = this.buffer;
-            // if not equal - another thred ovewrite message
+            // if not equal - another thread ovewrite message
             if (items[this.takeIndex] == message) {
                 items[this.takeIndex] = null;
                 this.takeIndex = inc(this.takeIndex);
