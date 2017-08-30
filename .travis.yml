@@ -5,8 +5,8 @@ notifications:
   email: false
 install: false
 script:
-  - ./mvn versions:set
-  - ./mvn clean package
+  - mvn versions:set
+  - mvn clean package
 deploy:
   provider: releases
   api_key:
