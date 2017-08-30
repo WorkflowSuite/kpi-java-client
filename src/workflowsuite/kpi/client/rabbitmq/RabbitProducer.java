@@ -1,20 +1,20 @@
 package workflowsuite.kpi.client.rabbitmq;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import org.jetbrains.annotations.NotNull;
-import workflowsuite.kpi.client.KpiMessage;
-import workflowsuite.kpi.client.MessageProducer;
-import workflowsuite.kpi.client.settings.GetConfigurationResult;
-import workflowsuite.kpi.client.settings.ConfigurationProvider;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-public class RabbitProducer implements MessageProducer {
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
+import workflowsuite.kpi.client.KpiMessage;
+import workflowsuite.kpi.client.MessageProducer;
+import workflowsuite.kpi.client.settings.ConfigurationProvider;
+import workflowsuite.kpi.client.settings.GetConfigurationResult;
+
+public final class RabbitProducer implements MessageProducer {
 
     private final ConfigurationProvider<RabbitQueueConfiguration> configurationProvider;
     private final KpiMessageSerializer serializer;
@@ -23,28 +23,55 @@ public class RabbitProducer implements MessageProducer {
     private Channel channel;
     private String queueName = "";
 
-    public RabbitProducer(@NotNull ConfigurationProvider<RabbitQueueConfiguration> configurationProvider) {
+    public RabbitProducer(ConfigurationProvider<RabbitQueueConfiguration> configurationProvider) {
 
         this.configurationProvider = configurationProvider;
         this.serializer = new KpiMessageSerializer();
     }
 
     @Override
-    public boolean TrySendMessage(@NotNull KpiMessage message) {
+    public boolean trySendMessage(KpiMessage message) {
         byte[] messageBytes = this.serializer.serialize(message);
         return TrySendMessage(messageBytes);
     }
 
-    private boolean TrySendMessage(@NotNull byte[] message) {
+    private boolean TrySendMessage(byte[] message) {
         try {
-            if (TryGetOnline())
-            {
+            if (TryGetOnline()) {
+                /*int channelNumber = this.channel.getChannelNumber();
+                AMQConnection amqConnection = (AMQConnection) this.channel.getConnection();
+
+                com.rabbitmq.client.impl.Method m = (com.rabbitmq.client.impl.Method)
+                        (new com.rabbitmq.client.AMQP.Basic.Publish.Builder()
+                        .exchange("")
+                        .routingKey(queueName)
+                        .mandatory(false)
+                        .immediate(false)
+                        .build());
+
+                amqConnection.writeFrame(m.toFrame(channelNumber));
+                amqConnection.writeFrame(MessageProperties.MINIMAL_BASIC.toFrame(channelNumber, message.length));
+                int frameMax = amqConnection.getFrameMax();
+                byte[] body = message;
+                int bodyPayloadMax = (frameMax == 0) ? message.length : frameMax
+                        - 8;
+                for (int offset = 0; offset < body.length; offset += bodyPayloadMax) {
+                    int remaining = body.length - offset;
+
+                    int fragmentLength = (remaining < bodyPayloadMax) ? remaining
+                            : bodyPayloadMax;
+                    com.rabbitmq.client.impl.Frame frame =
+                            com.rabbitmq.client.impl.Frame.fromBodyFragment(channelNumber, body,
+                                    offset, fragmentLength);
+                    amqConnection.writeFrame(frame);
+                }
+                amqConnection.flush();*/
+
                 this.channel.basicPublish("", queueName, null, message);
             }
 
             return true;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             return false;
         }
     }
@@ -57,8 +84,9 @@ public class RabbitProducer implements MessageProducer {
             }
             GetConfigurationResult<RabbitQueueConfiguration> configurationResult
                     = configurationProvider.tryGetValidConfiguration();
-            if (!configurationResult.getSuccess())
+            if (!configurationResult.getSuccess()) {
                 return false;
+            }
             RabbitQueueConfiguration cfg = configurationResult.getConfiguration();
             this.queueName = cfg.getQueue();
             this.connectionFactory = new ConnectionFactory();
@@ -74,11 +102,11 @@ public class RabbitProducer implements MessageProducer {
             //arguments.putIfAbsent("x-dead-letter-exchange", cfg.getDeadLetterExchange());
             //arguments.putIfAbsent("x-dead-letter-routing-key", cfg.getDeadLetterRoutingKey());
 
-            this.channel.queueDeclare(this.queueName, cfg.isDurable(), cfg.isExclusive(), cfg.isAutoDelete(), arguments);
+            this.channel.queueDeclare(this.queueName, cfg.isDurable(), cfg.isExclusive(),
+                    cfg.isAutoDelete(), arguments);
 
             return this.connection.isOpen() && this.channel.isOpen();
-        }
-        catch (TimeoutException e) {
+        } catch (TimeoutException e) {
             return false;
         } catch (IOException e) {
             return false;

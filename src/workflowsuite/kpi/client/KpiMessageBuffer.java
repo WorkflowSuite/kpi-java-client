@@ -1,13 +1,9 @@
-package workflowsuite.kpi.client.collections;
-
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import workflowsuite.kpi.client.KpiMessage;
+package workflowsuite.kpi.client;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-public final class KpiMessageBuffer {
+final class KpiMessageBuffer {
 
     private final KpiMessage[] buffer;
     private int takeIndex;
@@ -17,9 +13,10 @@ public final class KpiMessageBuffer {
     private final Condition notEmpty;
 
 
-    public KpiMessageBuffer(int capacity) {
-        if (!isPow2(capacity))
+    KpiMessageBuffer(int capacity) {
+        if (!isPow2(capacity)) {
             throw new IllegalArgumentException("capacity sould be pow of 2");
+        }
         this.buffer = new KpiMessage[capacity];
         this.takeIndex = 0;
         this.putIndex = 0;
@@ -28,17 +25,16 @@ public final class KpiMessageBuffer {
         this.notEmpty = this.lock.newCondition();
     }
 
-    public boolean offer(@NotNull KpiMessage message) {
+    public boolean offer(KpiMessage message) {
 
-        final ReentrantLock lock = this.lock;
-        lock.lock();
+        final ReentrantLock sync = this.lock;
+        sync.lock();
         try {
             final Object[] items = this.buffer;
             if (items[this.putIndex] != null) {
                 this.takeIndex = inc(this.takeIndex);
                 this.count = this.buffer.length;
-            }
-            else {
+            } else {
                 count++;
             }
             items[this.putIndex] = message;
@@ -46,29 +42,29 @@ public final class KpiMessageBuffer {
 
             notEmpty.signal();
         } finally {
-            lock.unlock();
+            sync.unlock();
         }
 
 
         return true;
     }
 
-    @NotNull
     public KpiMessage poll() throws InterruptedException {
-        final ReentrantLock lock = this.lock;
-        lock.lockInterruptibly();
+        final ReentrantLock sync = this.lock;
+        sync.lockInterruptibly();
         try {
-            while (this.count == 0)
+            while (this.count == 0) {
                 notEmpty.await();
+            }
             return this.buffer[this.takeIndex];
         } finally {
-            lock.unlock();
+            sync.unlock();
         }
     }
 
-    public void remove(@NotNull KpiMessage message) {
-        final ReentrantLock lock = this.lock;
-        lock.lock();
+    public void remove(KpiMessage message) {
+        final ReentrantLock sync = this.lock;
+        sync.lock();
         try {
             final KpiMessage[] items = this.buffer;
             // if not equal - another thred ovewrite message
@@ -78,28 +74,26 @@ public final class KpiMessageBuffer {
                 count--;
             }
         } finally {
-            lock.unlock();
+            sync.unlock();
         }
     }
 
     public int size() {
-        final ReentrantLock lock = this.lock;
-        lock.lock();
+        final ReentrantLock sync = this.lock;
+        sync.lock();
         try {
             return count;
         } finally {
-            lock.unlock();
+            sync.unlock();
         }
     }
 
-    @Contract(pure = true)
-    private int inc(int i) {
-        i++;
-        return ((i == this.buffer.length) ? 0 : i);
+    private int inc(final int i) {
+        int j = i + 1;
+        return (j == this.buffer.length) ? 0 : j;
     }
 
-    @Contract(pure = true)
-    private static boolean isPow2(int x) {
-        return ((x != 0) && ((x & (~x + 1)) == x));
+    private static boolean isPow2(final int x) {
+        return (x != 0) && ((x & (~x + 1)) == x);
     }
 }

@@ -1,10 +1,7 @@
-package workflowsuite.kpi.client.collections;
+package workflowsuite.kpi.client;
 
 import org.junit.Assert;
 import org.junit.Test;
-import workflowsuite.kpi.client.KpiMessage;
-
-import static org.junit.Assert.*;
 
 public class KpiMessageBufferTest {
     @Test
@@ -42,5 +39,4 @@ public class KpiMessageBufferTest {
         Assert.assertEquals("2", m.getSessionId());
         Assert.assertEquals(0, buffer.size());
     }
-
 }

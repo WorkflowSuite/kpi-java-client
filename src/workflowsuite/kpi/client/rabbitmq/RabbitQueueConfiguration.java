@@ -1,7 +1,5 @@
 package workflowsuite.kpi.client.rabbitmq;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.net.URI;
 
 public class RabbitQueueConfiguration {

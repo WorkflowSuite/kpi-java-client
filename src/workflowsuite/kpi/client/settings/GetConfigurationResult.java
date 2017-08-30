@@ -1,15 +1,13 @@
 package workflowsuite.kpi.client.settings;
 
-import org.jetbrains.annotations.Contract;
-
 public final class GetConfigurationResult<T> {
 
-    private boolean _success;
-    private T _configuration;
+    private boolean success;
+    private T configuration;
 
     public GetConfigurationResult(boolean success, T configuration) {
-        _success = success;
-        _configuration = configuration;
+        this.success = success;
+        this.configuration = configuration;
     }
 
     public static GetConfigurationResult success(Object configuration) {
@@ -20,13 +18,11 @@ public final class GetConfigurationResult<T> {
         return new GetConfigurationResult(false, null);
     }
 
-    @Contract(pure = true)
     public boolean getSuccess() {
-        return _success;
+        return success;
     }
 
-    @Contract(pure = true)
     public T getConfiguration() {
-        return _configuration;
+        return configuration;
     }
 }

@@ -1,18 +1,17 @@
 package workflowsuite.kpi.client;
 
-import workflowsuite.kpi.client.collections.KpiMessageBuffer;
+import java.net.URI;
+import java.time.Instant;
+
 import workflowsuite.kpi.client.rabbitmq.RabbitConfigurationProvider;
 import workflowsuite.kpi.client.rabbitmq.RabbitProducer;
 import workflowsuite.kpi.client.serviceregistry.ServiceRegistryClient;
 import workflowsuite.kpi.client.settings.ConfigurationProvider;
 import workflowsuite.kpi.client.time.ServerTimeProvider;
-import workflowsuite.kpi.client.time.TimeServerConfiguration;
-import workflowsuite.kpi.client.time.TimeServerRefreshableConfigurationProvider;
-import workflowsuite.kpi.client.time.TimeSynchronizer;
 import workflowsuite.kpi.client.time.TimeOffsetCalculator;
-
-import java.net.URI;
-import java.time.Instant;
+import workflowsuite.kpi.client.time.TimeServerConfiguration;
+import workflowsuite.kpi.client.time.TimeServerConfigurationProvider;
+import workflowsuite.kpi.client.time.TimeSynchronizer;
 
 public final class KpiClient {
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 16;
@@ -30,7 +29,7 @@ public final class KpiClient {
         this.messageProducer = new RabbitProducer(
                 new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME));
         ConfigurationProvider<TimeServerConfiguration> timeServerConfiguration =
-                new TimeServerRefreshableConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME);
+                new TimeServerConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME);
         this.timeSynchronizer = new TimeSynchronizer(
                 timeServerConfiguration,
                 new ServerTimeProvider(timeServerConfiguration),
@@ -41,7 +40,7 @@ public final class KpiClient {
         this.consumeMessagesThread.start();
     }
 
-    public final boolean onCheckpoint(String checkpointCode, String sessionId) {
+    public boolean onCheckpoint(String checkpointCode, String sessionId) {
         Instant now = Instant.now();
         KpiMessage message = new KpiMessage();
         message.setCheckpointCode(checkpointCode);
@@ -58,8 +57,8 @@ public final class KpiClient {
         while (true) {
             try {
                 KpiMessage message = this.buffer.poll();
-                if (!this.messageProducer.TrySendMessage(message)) {
-                    Thread.sleep(this.SEND_FAILURE_RELAXATION_TIMEOUT_MILLIS);
+                if (!this.messageProducer.trySendMessage(message)) {
+                    Thread.sleep(SEND_FAILURE_RELAXATION_TIMEOUT_MILLIS);
                 } else {
                     this.buffer.remove(message);
                 }

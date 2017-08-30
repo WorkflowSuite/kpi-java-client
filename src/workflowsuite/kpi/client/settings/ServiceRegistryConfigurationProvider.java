@@ -1,9 +1,9 @@
 package workflowsuite.kpi.client.settings;
 
-import workflowsuite.kpi.client.serviceregistry.ServiceRegistryClient;
-
 import java.time.Duration;
 import java.time.Instant;
+
+import workflowsuite.kpi.client.serviceregistry.ServiceRegistryClient;
 
 public abstract class ServiceRegistryConfigurationProvider<T> implements ConfigurationProvider<T> {
 
@@ -12,14 +12,13 @@ public abstract class ServiceRegistryConfigurationProvider<T> implements Configu
     protected final ServiceRegistryClient serviceRegistryClient;
     protected T configuration;
 
-
-    public ServiceRegistryConfigurationProvider(ServiceRegistryClient serviceRegistryClient, Duration refreshPeriod) {
+    public ServiceRegistryConfigurationProvider(ServiceRegistryClient serviceRegistryClient,
+                                                Duration refreshPeriod) {
         this.serviceRegistryClient = serviceRegistryClient;
         this.refreshPeriod = refreshPeriod;
         this.configuration = null;
         this.lastSync = Instant.MIN;
     }
-
 
     public final GetConfigurationResult<T> tryGetValidConfiguration() {
         if (Duration.between(lastSync, Instant.now()).compareTo(refreshPeriod) > 0) {

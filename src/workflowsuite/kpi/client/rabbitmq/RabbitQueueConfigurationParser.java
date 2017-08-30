@@ -1,28 +1,29 @@
 package workflowsuite.kpi.client.rabbitmq;
 
-import org.jetbrains.annotations.NotNull;
+import java.io.StringReader;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
 import workflowsuite.kpi.client.serviceregistry.ServiceEndpointsInfo;
 import workflowsuite.kpi.client.serviceregistry.TransportSettings;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import java.io.StringReader;
-
-public class RabbitQueueConfigurationParser extends DefaultHandler {
+class RabbitQueueConfigurationParser extends DefaultHandler {
 
     private RabbitQueueConfiguration configuration;
     private StringBuilder buffer;
 
-    public RabbitQueueConfigurationParser() {
+    RabbitQueueConfigurationParser() {
         buffer = new StringBuilder();
     }
 
-    public static RabbitQueueConfiguration parse(@NotNull String contract, @NotNull ServiceEndpointsInfo endpointsInfo) {
+    public static RabbitQueueConfiguration parse(String contract,
+                                                 ServiceEndpointsInfo endpointsInfo) {
         if (endpointsInfo.endpoints.size() == 0) {
             return new RabbitQueueConfiguration();
         }
@@ -84,16 +85,18 @@ public class RabbitQueueConfigurationParser extends DefaultHandler {
                 break;
             case "deadLetterRoutingKey":
                 this.configuration.setDeadLetterRoutingKey(this.buffer.toString());
+                break;
+            default: break;
         }
 
         buffer.setLength(0);
     }
 
-    private boolean isTrue(@NotNull StringBuilder buffer) {
-        return buffer.length() == 4 && buffer.indexOf("true") >=0;
+    private static boolean isTrue(StringBuilder buffer) {
+        return buffer.length() == 4 && buffer.indexOf("true") >= 0;
     }
 
-    private static String getQueueNameFromContract(@NotNull String contract) {
+    private static String getQueueNameFromContract(String contract) {
         int lastDelimiterIndex = contract.lastIndexOf("/");
         if (lastDelimiterIndex >= 0) {
             return contract.substring(lastDelimiterIndex + 1);

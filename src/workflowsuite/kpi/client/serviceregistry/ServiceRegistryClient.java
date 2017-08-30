@@ -19,19 +19,17 @@ public final class ServiceRegistryClient {
     private final String clientName;
 
     public ServiceRegistryClient(URI serverEndpoint) {
-
         this.serverEndpoint = serverEndpoint.toString();
         this.clientName = getMachineName();
     }
 
-    public final ServiceEndpointsInfo getServiceEndpointsInfo(String contract) {
-
+    public ServiceEndpointsInfo getServiceEndpointsInfo(String contract) {
         HttpURLConnection connection = null;
-        String query = this.serverEndpoint + SERVICE_REGISTRY_BASE_RESOURCE + "serviceendpoints?contract=" +
-                contract + "&client="+ this.clientName;
+        String query = this.serverEndpoint + SERVICE_REGISTRY_BASE_RESOURCE + "serviceendpoints?contract="
+                + contract + "&client=" + this.clientName;
         try {
             URL url = new URL(query);
-            connection = (HttpURLConnection)url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Content-Type", "application/xml; charset=utf-8");
             connection.setRequestProperty("Accept", "application/xml");
@@ -44,33 +42,26 @@ public final class ServiceRegistryClient {
 
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 ServiceEndpointInfosXmlParser serviceInfosParser = new ServiceEndpointInfosXmlParser();
-                try(InputStream inputStream = connection.getInputStream()) {
+                try (InputStream inputStream = connection.getInputStream()) {
                     return serviceInfosParser.parse(inputStream);
                 }
             }
         } catch (IOException ex) {
-            return ServiceEndpointsInfo.Empty;
-        }
-        finally {
+            return ServiceEndpointsInfo.EMPTY;
+        } finally {
             if (connection != null) {
                 connection.disconnect();
             }
         }
 
-
-        return ServiceEndpointsInfo.Empty;
-
+        return ServiceEndpointsInfo.EMPTY;
     }
 
-    private static String getMachineName()
-    {
-        try
-        {
+    private static String getMachineName() {
+        try {
             InetAddress address = InetAddress.getLocalHost();
             return address.getHostName();
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             return LOCALHOST;
         }
     }

@@ -1,6 +1,5 @@
 package workflowsuite.kpi.client.rabbitmq;
 
-import org.jetbrains.annotations.NotNull;
 import workflowsuite.kpi.client.KpiMessage;
 
 final class KpiMessageSerializer {
@@ -15,8 +14,7 @@ final class KpiMessageSerializer {
     private static final int TIMESTAMP_SIZE = Long.BYTES + Integer.BYTES;
     private static final int UTF8_LENGTH_SIZE = Short.BYTES;
 
-    @NotNull
-    public byte[] serialize(@NotNull final KpiMessage message) {
+    byte[] serialize(final KpiMessage message) {
         short payloadSize = calculatePayloadSize(message);
 
         int messageSize = HEADER_SIZE + PACKAGE_VERSION_SIZE + PAYLOAD_LENGTH_SIZE + payloadSize;
@@ -56,7 +54,7 @@ final class KpiMessageSerializer {
                 + UTF8_LENGTH_SIZE + utf8EncodedLength(message.getCheckpointCode())
                 // we don't send rest fields.
                 + Long.BYTES + Short.BYTES + Short.BYTES + Short.BYTES;
-        return (short)length;
+        return (short) length;
     }
 
     private static int putBytes(byte[] buffer, int startIndex, byte[] src) {
@@ -97,21 +95,21 @@ final class KpiMessageSerializer {
     }
 
     private static int putLongLE(byte[] buffer, int startIndex, long x) {
-                buffer[startIndex] = (byte) x;
-        buffer[startIndex + 1] = (byte)(x >> 8);
-        buffer[startIndex + 2] = (byte)(x >> 16);
-        buffer[startIndex + 3] = (byte)(x >> 24);
-        buffer[startIndex + 4] = (byte)(x >> 32);
-        buffer[startIndex + 5] = (byte)(x >> 40);
-        buffer[startIndex + 6] = (byte)(x >> 48);
-        buffer[startIndex + 7] = (byte)(x >> 56);
+        buffer[startIndex] = (byte) x;
+        buffer[startIndex + 1] = (byte) (x >> 8);
+        buffer[startIndex + 2] = (byte) (x >> 16);
+        buffer[startIndex + 3] = (byte) (x >> 24);
+        buffer[startIndex + 4] = (byte) (x >> 32);
+        buffer[startIndex + 5] = (byte) (x >> 40);
+        buffer[startIndex + 6] = (byte) (x >> 48);
+        buffer[startIndex + 7] = (byte) (x >> 56);
         return startIndex + Long.BYTES;
     }
 
     private static int putIntLE(byte[] buffer, int startIndex, int x) {
         buffer[startIndex] = (byte) x;
-        buffer[startIndex + 1] = (byte)(x >> 8);
-        buffer[startIndex + 2] = (byte)(x >> 16);
+        buffer[startIndex + 1] = (byte) (x >> 8);
+        buffer[startIndex + 2] = (byte) (x >> 16);
         buffer[startIndex + 3] = (byte) (x >> 24);
         return startIndex + Integer.BYTES;
     }
@@ -122,7 +120,7 @@ final class KpiMessageSerializer {
         return startIndex + Short.BYTES;
     }
 
-    static int utf8EncodedLength(String sequence) {
+    private static int utf8EncodedLength(String sequence) {
         // Warning to maintainers: this implementation is highly optimized.
         int utf16Length = sequence.length();
         int utf8Length = utf16Length;
@@ -137,7 +135,7 @@ final class KpiMessageSerializer {
         for (; i < utf16Length; i++) {
             char c = sequence.charAt(i);
             if (c < 0x800) {
-                utf8Length += ((0x7f - c) >>> 31);  // branch free!
+                utf8Length += (0x7f - c) >>> 31;  // branch free!
             } else {
                 utf8Length += encodedLengthGeneral(sequence, i);
                 break;
@@ -190,10 +188,6 @@ final class KpiMessageSerializer {
         if (i == utf16Length) {
             return j + utf16Length;
         }
-        return utf8EncodeSlow(in, out, utf16Length, j, i, limit);
-    }
-
-    private static int utf8EncodeSlow(String in, byte[] out, int utf16Length, int j, int i, int limit) {
         j += i;
         for (char c; i < utf16Length; i++) {
             c = in.charAt(i);
@@ -211,8 +205,7 @@ final class KpiMessageSerializer {
                 // Minimum code point represented by a surrogate pair is 0x10000, 17 bits,
                 // four UTF-8 bytes
                 final char low;
-                if (i + 1 == in.length()
-                        || !Character.isSurrogatePair(c, (low = in.charAt(++i)))) {
+                if (i + 1 == in.length() || !Character.isSurrogatePair(c, low = in.charAt(++i))) {
                     // stop encoding
                     return j;
                     //throw new UnpairedSurrogateException((i - 1), utf16Length);

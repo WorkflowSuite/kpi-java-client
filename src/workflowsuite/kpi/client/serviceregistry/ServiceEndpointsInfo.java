@@ -3,7 +3,7 @@ package workflowsuite.kpi.client.serviceregistry;
 import java.util.ArrayList;
 
 public final class ServiceEndpointsInfo {
-    public final static ServiceEndpointsInfo Empty = new ServiceEndpointsInfo();
+    public static final ServiceEndpointsInfo EMPTY = new ServiceEndpointsInfo();
 
     public String deploymentUnitName = "";
 

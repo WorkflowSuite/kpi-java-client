@@ -1,19 +1,17 @@
 package workflowsuite.kpi.client.time;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import java.io.StringReader;
 import java.net.URI;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 public final class TimeServerConfiguration {
 
@@ -22,25 +20,23 @@ public final class TimeServerConfiguration {
     private final URI endpoint;
     private final long clientTimeSyncIntervalSeconds;
 
-    public TimeServerConfiguration(URI endpoint, String transportSettings)
-    {
+    public TimeServerConfiguration(URI endpoint, String transportSettings) {
         this.endpoint = endpoint;
         this.clientTimeSyncIntervalSeconds = ParseClientTimeSyncInterval(transportSettings);
     }
 
-    @Contract(pure = true)
-    public final URI getEndpoint() {
+    public URI getEndpoint() {
         return this.endpoint;
     }
 
-    @Contract(pure = true)
     public long getClientTimeSyncIntervalSeconds() {
         return this.clientTimeSyncIntervalSeconds;
     }
 
     private long ParseClientTimeSyncInterval(String transportSettings) {
-        if (transportSettings.equals(""))
+        if (transportSettings.isEmpty()) {
             return DEFAULT_CLIENT_SYNC_INTERVAL_SECONDS;
+        }
         try {
             SAXParserFactory saxFactory = SAXParserFactory.newInstance();
             saxFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -65,7 +61,8 @@ public final class TimeServerConfiguration {
         }
 
         @Override
-        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        public void startElement(String uri, String localName, String qName,
+                                 Attributes attributes) throws SAXException {
             clear(this.buffer);
         }
 
@@ -76,8 +73,8 @@ public final class TimeServerConfiguration {
 
         @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            if (qName.equals("clientTimeSyncInterval")) {
-                clientTimeSyncInterval = LocalTime.parse(buffer,DateTimeFormatter.ISO_LOCAL_TIME).toSecondOfDay();
+            if ("clientTimeSyncInterval".equals(qName)) {
+                clientTimeSyncInterval = LocalTime.parse(buffer, DateTimeFormatter.ISO_LOCAL_TIME).toSecondOfDay();
             }
             clear(this.buffer);
         }
@@ -86,8 +83,8 @@ public final class TimeServerConfiguration {
             return clientTimeSyncInterval;
         }
 
-        private void clear(StringBuilder buffer) {
-                buffer.setLength(0);
+        private void clear(StringBuilder b) {
+                b.setLength(0);
         }
     }
 }

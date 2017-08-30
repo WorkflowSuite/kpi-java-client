@@ -1,24 +1,23 @@
 package workflowsuite.kpi.client.serviceregistry;
 
-import org.jetbrains.annotations.NotNull;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
+final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
 
-public final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
-
-    private State _state;
-    private StringBuilder _buffer;
+    private State state;
+    private StringBuilder tempBuffer;
 
     private enum State {
         NONE,
@@ -29,16 +28,15 @@ public final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
         TRANSPORTSETTING,
     }
 
-    private ServiceEndpointsInfo _serviceInfo;
+    private ServiceEndpointsInfo serviceEndpointsInfo;
 
-    @NotNull
-    public ServiceEndpointsInfo parse(@NotNull InputStream inputStream) {
+    ServiceEndpointsInfo parse(InputStream inputStream) {
         SAXParserFactory saxFactory = SAXParserFactory.newInstance();
         try {
             saxFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             SAXParser xmlParser = saxFactory.newSAXParser();
             xmlParser.parse(inputStream, this);
-            return _serviceInfo;
+            return serviceEndpointsInfo;
         } catch (ParserConfigurationException e) {
         } catch (SAXNotRecognizedException e) {
         } catch (SAXNotSupportedException e) {
@@ -50,76 +48,80 @@ public final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
 
     @Override
     public void startDocument() throws SAXException {
-        _serviceInfo = new ServiceEndpointsInfo();
-        _state = State.SERVICEENDPOINTSCONFIGURATION;
-        _buffer = new StringBuilder();
+        serviceEndpointsInfo = new ServiceEndpointsInfo();
+        state = State.SERVICEENDPOINTSCONFIGURATION;
+        tempBuffer = new StringBuilder();
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-        _buffer.setLength(0);
+        tempBuffer.setLength(0);
         // if local name not equals any, then current element is property name
         switch (qName) {
             case "ServiceEndpointsConfiguration":
-                _state = State.SERVICEENDPOINTSCONFIGURATION;
+                state = State.SERVICEENDPOINTSCONFIGURATION;
                 break;
             case "Endpoints":
-                _state = State.ENDPOINTS;
+                state = State.ENDPOINTS;
                 break;
             case "d2p1:EndpointConfiguration":
-                _state = State.EndpointConfiguration;
-                _serviceInfo.endpoints.add(new EndpointConfiguration("", URI.create(""), ""));
+                state = State.EndpointConfiguration;
+                serviceEndpointsInfo.endpoints.add(new EndpointConfiguration("", URI.create(""), ""));
                 break;
             case "TransportSettings":
-                _state = State.TRANSPORTSETTINGS;
+                state = State.TRANSPORTSETTINGS;
                 break;
             case "d2p1:TransportSettings":
-                _state = State.TRANSPORTSETTING;
-                _serviceInfo.transportSettigs.add(new TransportSettings("", "", "", ""));
+                state = State.TRANSPORTSETTING;
+                serviceEndpointsInfo.transportSettigs.add(new TransportSettings("", "", "", ""));
                 break;
+            default: break;
         }
     }
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
-        _buffer.append(ch, start, length);
+        tempBuffer.append(ch, start, length);
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        switch (_state) {
+        switch (state) {
             case SERVICEENDPOINTSCONFIGURATION:
-                FillServiceEnpointConfiguration(qName, _buffer);
+                FillServiceEnpointConfiguration(qName, tempBuffer);
                 break;
             case TRANSPORTSETTING:
-                FillTransportSetting(qName, _buffer);
+                FillTransportSetting(qName, tempBuffer);
                 break;
             case EndpointConfiguration:
-                FillEnpointConfiguration(qName, _buffer);
+                FillEnpointConfiguration(qName, tempBuffer);
                 break;
+            default: break;
         }
-        _buffer.setLength(0);
+        tempBuffer.setLength(0);
 
         switch (qName) {
             case "ServiceEndpointsConfiguration":
-                _state = State.NONE;
+                state = State.NONE;
                 break;
             case "Endpoints":
-                _state = State.SERVICEENDPOINTSCONFIGURATION;
+                state = State.SERVICEENDPOINTSCONFIGURATION;
                 break;
             case "d2p1:EndpointConfiguration":
-                _state = State.ENDPOINTS;
+                state = State.ENDPOINTS;
                 break;
             case "TransportSettings":
-                _state = State.SERVICEENDPOINTSCONFIGURATION;
-            case "d2p1:TransportSettings":
-                _state = State.TRANSPORTSETTINGS;
+                state = State.SERVICEENDPOINTSCONFIGURATION;
                 break;
+            case "d2p1:TransportSettings":
+                state = State.TRANSPORTSETTINGS;
+                break;
+            default: break;
         }
     }
 
     private void FillEnpointConfiguration(String currentElement, StringBuilder buffer) {
-        EndpointConfiguration e = _serviceInfo.endpoints.get(_serviceInfo.endpoints.size() - 1);
+        EndpointConfiguration e = serviceEndpointsInfo.endpoints.get(serviceEndpointsInfo.endpoints.size() - 1);
         String value = buffer.toString();
         switch (currentElement) {
             case "d2p1:Address":
@@ -131,11 +133,13 @@ public final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
             case "d2p1:TransportSettingsCode":
                 e.setTransportSettingsCode(value);
                 break;
+            default: break;
         }
     }
 
     private void FillTransportSetting(String currentElement, StringBuilder buffer) {
-        TransportSettings t = _serviceInfo.transportSettigs.get(_serviceInfo.transportSettigs.size() - 1);
+        TransportSettings t = serviceEndpointsInfo.transportSettigs.get(
+                serviceEndpointsInfo.transportSettigs.size() - 1);
         String value = buffer.toString();
         switch (currentElement) {
             case "d2p1:Body":
@@ -150,6 +154,7 @@ public final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
             case "d2p1:TypeCode":
                 t.setTypeCode(value);
                 break;
+            default: break;
         }
     }
 
@@ -157,11 +162,12 @@ public final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
         String value = buffer.toString();
         switch (currentElement) {
             case "DeploymentUnitName":
-                _serviceInfo.deploymentUnitName = value;
+                serviceEndpointsInfo.deploymentUnitName = value;
                 break;
             case "ServiceKind":
-                _serviceInfo.serviceKind = value;
+                serviceEndpointsInfo.serviceKind = value;
                 break;
+            default: break;
         }
     }
 }
