@@ -17,12 +17,19 @@ public final class TimeServerConfiguration {
 
     protected static final long DEFAULT_CLIENT_SYNC_INTERVAL_SECONDS = 60;
 
-    private final URI endpoint;
-    private final long clientTimeSyncIntervalSeconds;
+    private URI endpoint;
+    private long clientTimeSyncIntervalSeconds;
 
-    public TimeServerConfiguration(URI endpoint, String transportSettings) {
-        this.endpoint = endpoint;
-        this.clientTimeSyncIntervalSeconds = parseClientTimeSyncInterval(transportSettings);
+    /**
+     * Create instance of {{@link TimeServerConfiguration}} class.
+     * @param endpoint Endpoint.
+     * @param transportSettings XML transport settings definition.
+     */
+    public static TimeServerConfiguration parse(URI endpoint, String transportSettings) {
+        TimeServerConfiguration configuration = new TimeServerConfiguration();
+        configuration.endpoint = endpoint;
+        configuration.clientTimeSyncIntervalSeconds = parseClientTimeSyncInterval(transportSettings);
+        return configuration;
     }
 
     public URI getEndpoint() {
@@ -33,7 +40,7 @@ public final class TimeServerConfiguration {
         return this.clientTimeSyncIntervalSeconds;
     }
 
-    private long parseClientTimeSyncInterval(String transportSettings) {
+    private static long parseClientTimeSyncInterval(String transportSettings) {
         if (transportSettings.isEmpty()) {
             return DEFAULT_CLIENT_SYNC_INTERVAL_SECONDS;
         }
@@ -51,7 +58,7 @@ public final class TimeServerConfiguration {
         }
     }
 
-    private final class TransportSettingsParser extends DefaultHandler {
+    private static final class TransportSettingsParser extends DefaultHandler {
 
         private long clientTimeSyncInterval;
         private final StringBuilder buffer;

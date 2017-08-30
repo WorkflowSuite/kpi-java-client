@@ -13,7 +13,6 @@ public class RabbitQueueConfiguration {
     private String deadLetterExchange = "";
     private String deadLetterRoutingKey = "";
 
-
     public URI getEndpoint() {
         return endpoint;
     }
@@ -85,5 +84,4 @@ public class RabbitQueueConfiguration {
     public void setDeadLetterRoutingKey(String deadLetterRoutingKey) {
         this.deadLetterRoutingKey = deadLetterRoutingKey;
     }
-
 }

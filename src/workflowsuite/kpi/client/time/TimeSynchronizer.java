@@ -14,6 +14,12 @@ public final class TimeSynchronizer {
 
     private Duration lastOffset;
 
+    /**
+     * Create instance of {{@link TimeSynchronizer}} class.
+     * @param configurationProvider Configuration provider for getting settings.
+     * @param ntpDataProvider NTP provider for getting server time.
+     * @param timeOffsetCalculator Calculate offset.
+     */
     public TimeSynchronizer(ConfigurationProvider<TimeServerConfiguration> configurationProvider,
                             INtpDataProvider ntpDataProvider, ITimeOffsetCalculator timeOffsetCalculator) {
 

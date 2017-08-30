@@ -23,6 +23,10 @@ public final class KpiClient {
     private final MessageProducer messageProducer;
     private final TimeSynchronizer timeSynchronizer;
 
+    /**
+     * Create new instance of kpi client.
+     * @param serviceRegistryUri The address where the service registry is deployed.
+     */
     public KpiClient(URI serviceRegistryUri) {
         this.buffer = new KpiMessageBuffer(DEFAULT_BUFFER_SIZE);
         ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient(serviceRegistryUri);
@@ -40,6 +44,12 @@ public final class KpiClient {
         this.consumeMessagesThread.start();
     }
 
+    /**
+     * Registers a checkpoint crossing fact for an explicitly specified session.
+     * @param checkpointCode Unique checkpoint code. If the code is invalid, the method does nothing.
+     * @param sessionId Explicit kpi session identifier.
+     * @return {@code true}
+     */
     public boolean onCheckpoint(String checkpointCode, String sessionId) {
         Instant now = Instant.now();
         KpiMessage message = new KpiMessage();

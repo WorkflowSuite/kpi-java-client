@@ -12,6 +12,11 @@ public abstract class ServiceRegistryConfigurationProvider<T> implements Configu
     protected final ServiceRegistryClient serviceRegistryClient;
     protected T configuration;
 
+    /**
+     * Create instance of {{@link ServiceRegistryClient}} class.
+     * @param serviceRegistryClient The instance of service registry client, which use for read configuration.
+     * @param refreshPeriod The period after which the settings are read again
+     */
     public ServiceRegistryConfigurationProvider(ServiceRegistryClient serviceRegistryClient,
                                                 Duration refreshPeriod) {
         this.serviceRegistryClient = serviceRegistryClient;
@@ -20,6 +25,11 @@ public abstract class ServiceRegistryConfigurationProvider<T> implements Configu
         this.lastSync = Instant.MIN;
     }
 
+    /**
+     * Read configuration from service registry. Do sync refresh after period.
+     * @return Configuration.
+     */
+    @Override
     public final GetConfigurationResult<T> tryGetValidConfiguration() {
         if (Duration.between(lastSync, Instant.now()).compareTo(refreshPeriod) > 0) {
             syncConfiguration();

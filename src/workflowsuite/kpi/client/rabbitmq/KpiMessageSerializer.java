@@ -144,8 +144,8 @@ final class KpiMessageSerializer {
 
         if (utf8Length < utf16Length) {
             // Necessary and sufficient condition for overflow because of maximum 3x expansion
-            throw new IllegalArgumentException("UTF-8 length does not fit in int: "
-                    + (utf8Length + (1L << 32)));
+            throw new IllegalArgumentException(
+                    "UTF-8 length does not fit in int: " + (utf8Length + (1L << 32)));
         }
         return utf8Length;
     }
@@ -164,10 +164,10 @@ final class KpiMessageSerializer {
                     int cp = Character.codePointAt(sequence, i);
                     if (cp < Character.MIN_SUPPLEMENTARY_CODE_POINT) {
                         break;
-                        //TODO: thins how handle this situation
-                        //throw new UnpairedSurrogateException(i, utf16Length);
                     }
+                    // CHECKSTYLE:OFF ModifiedControlVariableCheck
                     i++;
+                    // CHECKSTYLE:ON ModifiedControlVariableCheck
                 }
             }
         }

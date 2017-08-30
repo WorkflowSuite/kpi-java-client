@@ -14,15 +14,23 @@ public final class ServiceRegistryClient {
 
     public static final Duration DEFAULT_REFRESH_TIME = Duration.ofSeconds(5);
 
-
     private final String serverEndpoint;
     private final String clientName;
 
+    /**
+     * Create instance of {{@link ServiceRegistryClient}} class.
+     * @param serverEndpoint The address where the service registry is deployed.
+     */
     public ServiceRegistryClient(URI serverEndpoint) {
         this.serverEndpoint = serverEndpoint.toString();
         this.clientName = getMachineName();
     }
 
+    /**
+     * Return endpoints by contract.
+     * @param contract The contract for which you need to return the endpoints.
+     * @return The endpoints.
+     */
     public ServiceEndpointsInfo getServiceEndpointsInfo(String contract) {
         HttpURLConnection connection = null;
         String query = this.serverEndpoint + SERVICE_REGISTRY_BASE_RESOURCE + "serviceendpoints?contract="

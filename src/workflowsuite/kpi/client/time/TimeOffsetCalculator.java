@@ -5,6 +5,11 @@ import java.time.Instant;
 
 public final class TimeOffsetCalculator implements ITimeOffsetCalculator {
 
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public TimeSyncData calculateTimeOffset(NtpData data) {
         Instant t1 = data.getRequestTransmission();
         Instant t2 = data.getRequestReception();

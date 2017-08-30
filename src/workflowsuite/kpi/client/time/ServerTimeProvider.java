@@ -19,25 +19,36 @@ public final class ServerTimeProvider implements INtpDataProvider {
     private final ConfigurationProvider<TimeServerConfiguration> configurationProvider;
     private final byte[] buffer;
 
+    /**
+     * Create instance of {{@link ServerTimeProvider}} class.
+     * @param configuration Configration provider for getting ntp settings.
+     */
     public ServerTimeProvider(ConfigurationProvider<TimeServerConfiguration> configuration) {
         this.configurationProvider = configuration;
         this.buffer = new byte[BUFFER_SIZE];
     }
 
+    /**
+     * Connect by tcp to ntp server and calculate ntp data.
+     * @return NTP data.
+     * @throws ConfigurationNotFoundException
+     * @throws IOException
+     */
+    @Override
     public NtpData getNtpData() throws ConfigurationNotFoundException, IOException {
 
         GetConfigurationResult<TimeServerConfiguration> result = configurationProvider.tryGetValidConfiguration();
 
         if (result.getSuccess()) {
             TimeServerConfiguration configuration = result.getConfiguration();
-            try(Socket socket = new Socket()) {
+            try (Socket socket = new Socket()) {
                 socket.setReceiveBufferSize(BUFFER_SIZE);
                 socket.setKeepAlive(false);
                 socket.setSoTimeout(SOCKET_TIMEOUT_MILLIS);
                 Instant requestTransmission = Instant.now();
                 socket.connect(new InetSocketAddress(configuration.getEndpoint().getHost(),
                         configuration.getEndpoint().getPort()), CONNECTION_TIMEOUT_MILLIS);
-                try(InputStream inputStream = socket.getInputStream()) {
+                try (InputStream inputStream = socket.getInputStream()) {
                     int bytesRead =  inputStream.read(this.buffer);
                     if (bytesRead == BUFFER_SIZE) {
                         Instant responseReception = Instant.now();

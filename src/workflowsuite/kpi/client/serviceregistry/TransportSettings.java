@@ -6,6 +6,13 @@ public final class TransportSettings {
     private String code = "";
     private String body = "";
 
+    /**
+     * Create instance of {{@link TransportSettings}} class.
+     * @param typeCode The transport setting type code.
+     * @param name The transport setting name.
+     * @param code The transport setting code.
+     * @param body The transport setting body.
+     */
     public TransportSettings(String typeCode, String name, String code, String body) {
 
         this.typeCode = typeCode;
