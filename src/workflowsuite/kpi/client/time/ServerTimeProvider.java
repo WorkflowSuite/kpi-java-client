@@ -12,7 +12,8 @@ import workflowsuite.kpi.client.settings.ConfigurationProvider;
 import workflowsuite.kpi.client.settings.GetConfigurationResult;
 
 public final class ServerTimeProvider implements INtpDataProvider {
-    private static final int BUFFER_SIZE = 16;
+    private static final int TIMESTAMP_SIZE = Long.BYTES + Integer.BYTES;
+    private static final int BUFFER_SIZE = TIMESTAMP_SIZE * 2;
     private static final int CONNECTION_TIMEOUT_MILLIS = 2000;
     private static final int SOCKET_TIMEOUT_MILLIS = 5000;
 
@@ -21,7 +22,7 @@ public final class ServerTimeProvider implements INtpDataProvider {
 
     /**
      * Create instance of {{@link ServerTimeProvider}} class.
-     * @param configuration Configration provider for getting ntp settings.
+     * @param configuration Configuration provider for getting ntp settings.
      */
     public ServerTimeProvider(ConfigurationProvider<TimeServerConfiguration> configuration) {
         this.configurationProvider = configuration;
@@ -52,10 +53,8 @@ public final class ServerTimeProvider implements INtpDataProvider {
                     int bytesRead =  inputStream.read(this.buffer);
                     if (bytesRead == BUFFER_SIZE) {
                         Instant responseReception = Instant.now();
-                        Instant requestReception = OleAutomationDateUtil.fromOADate(
-                                BitConverter.byteArrayToDoubleLE(this.buffer, 0));
-                        Instant responseTransmission = OleAutomationDateUtil.fromOADate(
-                                BitConverter.byteArrayToDoubleLE(this.buffer, 8));
+                        Instant requestReception = parseInstant(buffer, 0);
+                        Instant responseTransmission = parseInstant(buffer, TIMESTAMP_SIZE);
 
                         return new NtpData(requestTransmission, requestReception,
                                 responseTransmission, responseReception);
@@ -67,5 +66,11 @@ public final class ServerTimeProvider implements INtpDataProvider {
         }
 
         throw new ConfigurationNotFoundException();
+    }
+
+    private static Instant parseInstant(byte[] buffer, int startIndex) {
+        long seconds = BitConverter.byteArrayToLongLE(buffer, startIndex);
+        long nanoSeconds = BitConverter.byteArrayToInt(buffer, startIndex + Long.BYTES);
+        return Instant.ofEpochSecond(seconds, nanoSeconds);
     }
 }
