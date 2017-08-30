@@ -10,7 +10,7 @@ public final class BitConverter {
         return Double.longBitsToDouble(byteArrayToLongLE(data, startIndex));
     }
 
-    static long byteArrayToLongLE(byte[] data, int startIndex) {
+    protected static long byteArrayToLongLE(byte[] data, int startIndex) {
         return ((long) data[startIndex + 7] << 56)
                 | (((long) data[startIndex + 6] & 0xff) << 48)
                 | (((long) data[startIndex + 5] & 0xff) << 40)

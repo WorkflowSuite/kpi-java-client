@@ -15,7 +15,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public final class TimeServerConfiguration {
 
-    static final long DEFAULT_CLIENT_SYNC_INTERVAL_SECONDS = 60;
+    protected static final long DEFAULT_CLIENT_SYNC_INTERVAL_SECONDS = 60;
 
     private final URI endpoint;
     private final long clientTimeSyncIntervalSeconds;
