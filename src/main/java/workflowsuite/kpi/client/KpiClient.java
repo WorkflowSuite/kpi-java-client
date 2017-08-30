@@ -27,7 +27,7 @@ public final class KpiClient {
      * Create new instance of kpi client.
      * @param serviceRegistryUri The address where the service registry is deployed.
      */
-    public KpiClient(URI serviceRegistryUri) {
+    KpiClient(URI serviceRegistryUri) {
         this.buffer = new KpiMessageBuffer(DEFAULT_BUFFER_SIZE);
         ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient(serviceRegistryUri);
         this.messageProducer = new RabbitProducer(
