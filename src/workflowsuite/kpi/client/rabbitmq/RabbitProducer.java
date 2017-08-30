@@ -18,7 +18,6 @@ public final class RabbitProducer implements MessageProducer {
 
     private final ConfigurationProvider<RabbitQueueConfiguration> configurationProvider;
     private final KpiMessageSerializer serializer;
-    private ConnectionFactory connectionFactory;
     private Connection connection;
     private Channel channel;
     private String queueName = "";
@@ -89,11 +88,11 @@ public final class RabbitProducer implements MessageProducer {
             }
             RabbitQueueConfiguration cfg = configurationResult.getConfiguration();
             this.queueName = cfg.getQueue();
-            this.connectionFactory = new ConnectionFactory();
-            this.connectionFactory.setHost(cfg.getEndpoint().getHost());
-            this.connectionFactory.setUsername(cfg.getUserName());
-            this.connectionFactory.setPassword(cfg.getPassword());
-            this.connectionFactory.setAutomaticRecoveryEnabled(false);
+            ConnectionFactory connectionFactory = new ConnectionFactory();
+            connectionFactory.setHost(cfg.getEndpoint().getHost());
+            connectionFactory.setUsername(cfg.getUserName());
+            connectionFactory.setPassword(cfg.getPassword());
+            connectionFactory.setAutomaticRecoveryEnabled(false);
 
             this.connection = connectionFactory.newConnection("Workflow Suite KPI Java Client");
             this.channel = this.connection.createChannel();

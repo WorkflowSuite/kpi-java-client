@@ -25,7 +25,7 @@ final class OleAutomationDateUtil {
 
     }
 
-    static Instant fromOADate(double time) {
+    protected static Instant fromOADate(double time) {
         //if (time >= 2958466 || time <= -657435)
         //throw
         long millis = (long) (time * MILLIS_PER_DAY + (time >= 0.0 ? 0.5 : -0.5));

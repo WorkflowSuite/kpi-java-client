@@ -30,7 +30,7 @@ final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
 
     private ServiceEndpointsInfo serviceEndpointsInfo;
 
-    ServiceEndpointsInfo parse(InputStream inputStream) {
+    protected ServiceEndpointsInfo parse(InputStream inputStream) {
         SAXParserFactory saxFactory = SAXParserFactory.newInstance();
         try {
             saxFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);

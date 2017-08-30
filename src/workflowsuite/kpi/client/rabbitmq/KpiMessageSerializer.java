@@ -14,7 +14,7 @@ final class KpiMessageSerializer {
     private static final int TIMESTAMP_SIZE = Long.BYTES + Integer.BYTES;
     private static final int UTF8_LENGTH_SIZE = Short.BYTES;
 
-    byte[] serialize(final KpiMessage message) {
+    protected byte[] serialize(final KpiMessage message) {
         short payloadSize = calculatePayloadSize(message);
 
         int messageSize = HEADER_SIZE + PACKAGE_VERSION_SIZE + PAYLOAD_LENGTH_SIZE + payloadSize;
