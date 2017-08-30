@@ -5,7 +5,7 @@ import java.time.Instant;
 final class NtpData {
     private final Instant requestTransmission;
     private final Instant requestReception;
-    private final Instant responsetransmission;
+    private final Instant responseTransmission;
     private final Instant responseReception;
 
     NtpData(Instant requestTransmission, Instant requestReception,
@@ -13,7 +13,7 @@ final class NtpData {
 
         this.requestTransmission = requestTransmission;
         this.requestReception = requestReception;
-        responsetransmission = responseTransmission;
+        this.responseTransmission = responseTransmission;
         this.responseReception = responseReception;
     }
 
@@ -26,7 +26,7 @@ final class NtpData {
     }
 
     public Instant getResponseTransmission() {
-        return responsetransmission;
+        return responseTransmission;
     }
 
     public Instant getResponseReception() {
