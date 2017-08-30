@@ -18,7 +18,7 @@ public final class TimeServerConfigurationProvider extends
     }
 
     @Override
-    protected void SyncConfiguration() {
+    protected void syncConfiguration() {
         ServiceEndpointsInfo info = serviceRegistryClient.getServiceEndpointsInfo(TIME_SERVER_CONTRACT);
         if (info.endpoints.size() > 0) {
 

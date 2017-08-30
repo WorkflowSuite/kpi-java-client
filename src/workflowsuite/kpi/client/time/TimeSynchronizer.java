@@ -27,16 +27,16 @@ public final class TimeSynchronizer {
         if (configurationResult.getSuccess()) {
             timeoutSeconds = configurationResult.getConfiguration().getClientTimeSyncIntervalSeconds();
         }
-        scheduler.scheduleWithFixedDelay(this::Synchronize, 0, timeoutSeconds, TimeUnit.SECONDS);
+        scheduler.scheduleWithFixedDelay(this::synchronize, 0, timeoutSeconds, TimeUnit.SECONDS);
     }
 
     public Duration getOffset() {
         return this.lastOffset;
     }
 
-    private void Synchronize() {
+    private void synchronize() {
         try {
-            NtpData ntpData = this.ntpDataProvider.GetNtpData();
+            NtpData ntpData = this.ntpDataProvider.getNtpData();
             TimeSyncData timeOffset = this.timeOffsetCalculator.calculateTimeOffset(ntpData);
             this.lastOffset = timeOffset.getOffset();
         }  catch (Exception e) {

@@ -88,13 +88,13 @@ final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
     public void endElement(String uri, String localName, String qName) throws SAXException {
         switch (state) {
             case SERVICE_ENDPOINTS_CONFIGURATION:
-                FillServiceEnpointConfiguration(qName, tempBuffer);
+                fillServiceEnpointConfiguration(qName, tempBuffer);
                 break;
             case TRANSPORT_SETTING:
-                FillTransportSetting(qName, tempBuffer);
+                fillTransportSetting(qName, tempBuffer);
                 break;
             case ENDPOINT_CONFIGURATION:
-                FillEnpointConfiguration(qName, tempBuffer);
+                fillEnpointConfiguration(qName, tempBuffer);
                 break;
             default: break;
         }
@@ -120,7 +120,7 @@ final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
         }
     }
 
-    private void FillEnpointConfiguration(String currentElement, StringBuilder buffer) {
+    private void fillEnpointConfiguration(String currentElement, StringBuilder buffer) {
         EndpointConfiguration e = serviceEndpointsInfo.endpoints.get(serviceEndpointsInfo.endpoints.size() - 1);
         String value = buffer.toString();
         switch (currentElement) {
@@ -137,7 +137,7 @@ final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
         }
     }
 
-    private void FillTransportSetting(String currentElement, StringBuilder buffer) {
+    private void fillTransportSetting(String currentElement, StringBuilder buffer) {
         TransportSettings t = serviceEndpointsInfo.transportSettigs.get(
                 serviceEndpointsInfo.transportSettigs.size() - 1);
         String value = buffer.toString();
@@ -158,7 +158,7 @@ final class ServiceEndpointInfosXmlParser extends   DefaultHandler {
         }
     }
 
-    private void FillServiceEnpointConfiguration(String currentElement, StringBuilder buffer) {
+    private void fillServiceEnpointConfiguration(String currentElement, StringBuilder buffer) {
         String value = buffer.toString();
         switch (currentElement) {
             case "DeploymentUnitName":

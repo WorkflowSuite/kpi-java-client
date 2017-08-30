@@ -22,7 +22,7 @@ public final class TimeServerConfiguration {
 
     public TimeServerConfiguration(URI endpoint, String transportSettings) {
         this.endpoint = endpoint;
-        this.clientTimeSyncIntervalSeconds = ParseClientTimeSyncInterval(transportSettings);
+        this.clientTimeSyncIntervalSeconds = parseClientTimeSyncInterval(transportSettings);
     }
 
     public URI getEndpoint() {
@@ -33,7 +33,7 @@ public final class TimeServerConfiguration {
         return this.clientTimeSyncIntervalSeconds;
     }
 
-    private long ParseClientTimeSyncInterval(String transportSettings) {
+    private long parseClientTimeSyncInterval(String transportSettings) {
         if (transportSettings.isEmpty()) {
             return DEFAULT_CLIENT_SYNC_INTERVAL_SECONDS;
         }

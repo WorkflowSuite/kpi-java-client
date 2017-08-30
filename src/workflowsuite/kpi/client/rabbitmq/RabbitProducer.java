@@ -31,12 +31,12 @@ public final class RabbitProducer implements MessageProducer {
     @Override
     public boolean trySendMessage(KpiMessage message) {
         byte[] messageBytes = this.serializer.serialize(message);
-        return TrySendMessage(messageBytes);
+        return trySendMessage(messageBytes);
     }
 
-    private boolean TrySendMessage(byte[] message) {
+    private boolean trySendMessage(byte[] message) {
         try {
-            if (TryGetOnline()) {
+            if (tryGetOnline()) {
                 /*int channelNumber = this.channel.getChannelNumber();
                 AMQConnection amqConnection = (AMQConnection) this.channel.getConnection();
 
@@ -75,7 +75,7 @@ public final class RabbitProducer implements MessageProducer {
         }
     }
 
-    private boolean TryGetOnline() {
+    private boolean tryGetOnline() {
         try {
             if (this.connection != null && this.channel != null && this.connection.isOpen() && this.channel.isOpen()) {
 

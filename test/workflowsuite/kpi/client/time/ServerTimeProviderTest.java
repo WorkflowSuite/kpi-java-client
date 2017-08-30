@@ -14,7 +14,7 @@ public final class ServerTimeProviderTest {
         ServiceRegistryClient srClient = new ServiceRegistryClient(new URI("http://msk-dev-foris:9130/"));
         TimeServerConfigurationProvider configuration = new TimeServerConfigurationProvider(srClient, Duration.ofSeconds(5));
         ServerTimeProvider timeProvider = new ServerTimeProvider(configuration);
-        NtpData ntpData = timeProvider.GetNtpData();
+        NtpData ntpData = timeProvider.getNtpData();
     }
 
 }

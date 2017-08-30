@@ -24,7 +24,7 @@ public final class ServerTimeProvider implements INtpDataProvider {
         this.buffer = new byte[BUFFER_SIZE];
     }
 
-    public NtpData GetNtpData() throws ConfigurationNotFoundException, IOException {
+    public NtpData getNtpData() throws ConfigurationNotFoundException, IOException {
 
         GetConfigurationResult<TimeServerConfiguration> result = configurationProvider.tryGetValidConfiguration();
 

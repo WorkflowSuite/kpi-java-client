@@ -22,7 +22,7 @@ public abstract class ServiceRegistryConfigurationProvider<T> implements Configu
 
     public final GetConfigurationResult<T> tryGetValidConfiguration() {
         if (Duration.between(lastSync, Instant.now()).compareTo(refreshPeriod) > 0) {
-            SyncConfiguration();
+            syncConfiguration();
             lastSync = Instant.now();
         }
 
@@ -33,5 +33,5 @@ public abstract class ServiceRegistryConfigurationProvider<T> implements Configu
         return GetConfigurationResult.fail();
     }
 
-    protected abstract void SyncConfiguration();
+    protected abstract void syncConfiguration();
 }

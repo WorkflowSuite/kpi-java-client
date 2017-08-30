@@ -15,7 +15,7 @@ public final class RabbitConfigurationProvider extends ServiceRegistryConfigurat
     }
 
     @Override
-    protected void SyncConfiguration() {
+    protected void syncConfiguration() {
         ServiceEndpointsInfo info = serviceRegistryClient.getServiceEndpointsInfo(KPI_CONTRACT);
         this.configuration = RabbitQueueConfigurationParser.parse(KPI_CONTRACT, info);
     }
