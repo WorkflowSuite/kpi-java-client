@@ -9,7 +9,7 @@ public final class ServiceEndpointsInfo {
 
     public String serviceKind = "";
 
-    public ArrayList<EndpointConfiguration> endpoints = new ArrayList<>(0);
+    public final ArrayList<EndpointConfiguration> endpoints = new ArrayList<>(0);
 
-    public ArrayList<TransportSettings> transportSettigs = new ArrayList<>(0);
+    public final ArrayList<TransportSettings> transportSettigs = new ArrayList<>(0);
 }

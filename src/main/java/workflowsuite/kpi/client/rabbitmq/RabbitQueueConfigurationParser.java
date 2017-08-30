@@ -16,7 +16,7 @@ import workflowsuite.kpi.client.serviceregistry.TransportSettings;
 class RabbitQueueConfigurationParser extends DefaultHandler {
 
     private RabbitQueueConfiguration configuration;
-    private StringBuilder buffer;
+    private final StringBuilder buffer;
 
     RabbitQueueConfigurationParser() {
         buffer = new StringBuilder();

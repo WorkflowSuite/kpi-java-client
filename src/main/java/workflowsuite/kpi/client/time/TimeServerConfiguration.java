@@ -18,7 +18,7 @@ public final class TimeServerConfiguration {
     protected static final long DEFAULT_CLIENT_SYNC_INTERVAL_SECONDS = 60;
 
     private URI endpoint;
-    private long clientTimeSyncIntervalSeconds;
+    private long clientTimeSyncIntervalSeconds = DEFAULT_CLIENT_SYNC_INTERVAL_SECONDS;
 
     /**
      * Create instance of {{@link TimeServerConfiguration}} class.
@@ -34,6 +34,10 @@ public final class TimeServerConfiguration {
 
     public URI getEndpoint() {
         return this.endpoint;
+    }
+
+    public void setEndpoint(URI endpoint) {
+        this.endpoint = endpoint;
     }
 
     public long getClientTimeSyncIntervalSeconds() {
