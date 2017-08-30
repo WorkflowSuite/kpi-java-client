@@ -30,30 +30,28 @@ public final class ServerTimeProvider implements INtpDataProvider {
 
         if (result.getSuccess()) {
             TimeServerConfiguration configuration = result.getConfiguration();
-            Socket socket = new Socket();
-            try {
+            try(Socket socket = new Socket()) {
                 socket.setReceiveBufferSize(BUFFER_SIZE);
                 socket.setKeepAlive(false);
                 socket.setSoTimeout(SOCKET_TIMEOUT_MILLIS);
                 Instant requestTransmission = Instant.now();
                 socket.connect(new InetSocketAddress(configuration.getEndpoint().getHost(),
                         configuration.getEndpoint().getPort()), CONNECTION_TIMEOUT_MILLIS);
-                InputStream inputStream = socket.getInputStream();
-                int bytesRead =  inputStream.read(this.buffer);
-                if (bytesRead == BUFFER_SIZE) {
-                    Instant responseReception = Instant.now();
-                    Instant requestReception = OleAutomationDateUtil.fromOADate(
-                            BitConverter.byteArrayToDoubleLE(this.buffer, 0));
-                    Instant responseTransmission = OleAutomationDateUtil.fromOADate(
-                            BitConverter.byteArrayToDoubleLE(this.buffer, 8));
+                try(InputStream inputStream = socket.getInputStream()) {
+                    int bytesRead =  inputStream.read(this.buffer);
+                    if (bytesRead == BUFFER_SIZE) {
+                        Instant responseReception = Instant.now();
+                        Instant requestReception = OleAutomationDateUtil.fromOADate(
+                                BitConverter.byteArrayToDoubleLE(this.buffer, 0));
+                        Instant responseTransmission = OleAutomationDateUtil.fromOADate(
+                                BitConverter.byteArrayToDoubleLE(this.buffer, 8));
 
-                    return new NtpData(requestTransmission, requestReception,
-                            responseTransmission, responseReception);
-                } else {
-                    throw new ConfigurationNotFoundException(); // TODO: make specialized exception
+                        return new NtpData(requestTransmission, requestReception,
+                                responseTransmission, responseReception);
+                    } else {
+                        throw new ConfigurationNotFoundException(); // TODO: make specialized exception
+                    }
                 }
-            } finally {
-                socket.close();
             }
         }
 
