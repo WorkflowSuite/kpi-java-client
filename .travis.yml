@@ -5,8 +5,8 @@ notifications:
   email: false
 install: false
 script:
-  - mvn versions:set
-  - mvn clean package
+  - export KPI_CLIENT_VERSION=$(if [ "$TRAVIS_TAG" == "" ]; then echo $TRAVIS_BRANCH.$TRAVIS_BUILD_NUMBER; else echo $TRAVIS_TAG; fi)
+  - mvn versions:set clean package
 deploy:
   provider: releases
   api_key:

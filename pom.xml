@@ -58,7 +58,7 @@
                 <artifactId>versions-maven-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
-                    <newVersion>${env.TRAVIS_BUILD_NUMBER}</newVersion>
+                    <newVersion>${env.KPI_CLIENT_VERSION}</newVersion>
                 </configuration>
             </plugin>
             <plugin>
