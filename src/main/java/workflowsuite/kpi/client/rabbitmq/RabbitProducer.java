@@ -23,8 +23,8 @@ public final class RabbitProducer implements MessageProducer {
     private String queueName = "";
 
     /**
-     * Create instance of {code {@link ConfigurationProvider<RabbitQueueConfiguration>}} class
-     * for processing {@code {@link KpiMessage}}.
+     * Create instance of {{@link ConfigurationProvider}} class
+     * for processing {{@link KpiMessage}}.
      * @param configurationProvider The provider for get settings.
      */
     public RabbitProducer(ConfigurationProvider<RabbitQueueConfiguration> configurationProvider) {

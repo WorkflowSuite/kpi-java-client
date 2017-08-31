@@ -24,6 +24,7 @@ public final class TimeServerConfiguration {
      * Create instance of {{@link TimeServerConfiguration}} class.
      * @param endpoint Endpoint.
      * @param transportSettings XML transport settings definition.
+     * @return New instance.
      */
     public static TimeServerConfiguration parse(URI endpoint, String transportSettings) {
         TimeServerConfiguration configuration = new TimeServerConfiguration();
