@@ -17,4 +17,5 @@ deploy:
   file: target/*.jar
   skip_cleanup: true
   on:
+    tags: true
     repo: WorkflowSuite/kpi-java-client
