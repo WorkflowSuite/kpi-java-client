@@ -8,6 +8,8 @@ final class NtpData {
     private final Instant responseTransmission;
     private final Instant responseReception;
 
+    static final NtpData EMPTY = new NtpData(Instant.MIN, Instant.MIN, Instant.MIN, Instant.MIN);
+
     NtpData(Instant requestTransmission, Instant requestReception,
             Instant responseTransmission, Instant responseReception) {
 
@@ -31,5 +33,9 @@ final class NtpData {
 
     public Instant getResponseReception() {
         return responseReception;
+    }
+
+    static boolean IsEmpty(NtpData ntpData) {
+        return ntpData == EMPTY;
     }
 }

@@ -3,7 +3,7 @@ package workflowsuite.kpi.client;
 import java.net.URI;
 
 public class KpiClientFactory {
-    private URI serviceRegistryUri;
+    private URI srUri;
 
     /**
      * Set URI for interacting service registry.
@@ -12,7 +12,7 @@ public class KpiClientFactory {
      */
     public KpiClientFactory useServiceRegistry(URI serviceRegistryUri) {
 
-        this.serviceRegistryUri = serviceRegistryUri;
+        this.srUri = serviceRegistryUri;
         return this;
     }
 
@@ -21,6 +21,6 @@ public class KpiClientFactory {
      * @return Kpi client object.
      */
     public KpiClient newKpiClient() {
-        return new KpiClient(serviceRegistryUri);
+        return new KpiClient(srUri);
     }
 }

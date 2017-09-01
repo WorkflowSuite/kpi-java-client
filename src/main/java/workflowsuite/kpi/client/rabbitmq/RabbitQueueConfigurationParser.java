@@ -1,7 +1,9 @@
 package workflowsuite.kpi.client.rabbitmq;
 
+import java.io.IOException;
 import java.io.StringReader;
 import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -43,7 +45,7 @@ class RabbitQueueConfigurationParser extends DefaultHandler {
 
                     xmlParser.parse(new InputSource(new StringReader(transportSettings.getBody())), parser);
 
-                } catch (Exception e) {
+                } catch (ParserConfigurationException | SAXException | IOException e) {
                     return new RabbitQueueConfiguration();
                 }
             }

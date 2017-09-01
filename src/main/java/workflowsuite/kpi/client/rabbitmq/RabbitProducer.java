@@ -40,7 +40,6 @@ public final class RabbitProducer implements MessageProducer {
     }
 
     private boolean trySendMessage(byte[] message) {
-        try {
             if (tryGetOnline()) {
                 /*int channelNumber = this.channel.getChannelNumber();
                 AMQConnection amqConnection = (AMQConnection) this.channel.getConnection();
@@ -71,13 +70,15 @@ public final class RabbitProducer implements MessageProducer {
                 }
                 amqConnection.flush();*/
 
-                this.channel.basicPublish("", queueName, null, message);
+                try {
+                    this.channel.basicPublish("", queueName, null, message);
+                    return true;
+                } catch (IOException e) {
+                    return false;
+                }
             }
 
-            return true;
-        } catch (Exception ex) {
             return false;
-        }
     }
 
     private boolean tryGetOnline() {
@@ -110,9 +111,7 @@ public final class RabbitProducer implements MessageProducer {
                     cfg.isAutoDelete(), arguments);
 
             return this.connection.isOpen() && this.channel.isOpen();
-        } catch (TimeoutException e) {
-            return false;
-        } catch (IOException e) {
+        } catch (TimeoutException | IOException e) {
             return false;
         }
     }

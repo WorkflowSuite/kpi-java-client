@@ -1,10 +1,12 @@
 package workflowsuite.kpi.client.time;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -49,16 +51,16 @@ public final class TimeServerConfiguration {
         if (transportSettings.isEmpty()) {
             return DEFAULT_CLIENT_SYNC_INTERVAL_SECONDS;
         }
+
+        SAXParserFactory saxFactory = SAXParserFactory.newInstance();
         try {
-            SAXParserFactory saxFactory = SAXParserFactory.newInstance();
             saxFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             SAXParser xmlParser = saxFactory.newSAXParser();
 
             TransportSettingsParser transportSettingsParser = new TransportSettingsParser();
             xmlParser.parse(new InputSource(new StringReader(transportSettings)), transportSettingsParser);
             return transportSettingsParser.getClientTimeSyncInterval();
-
-        } catch (Exception e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             return DEFAULT_CLIENT_SYNC_INTERVAL_SECONDS;
         }
     }

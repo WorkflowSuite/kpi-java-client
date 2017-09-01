@@ -7,7 +7,6 @@ import java.net.Socket;
 import java.time.Instant;
 
 import workflowsuite.kpi.client.bits.BitConverter;
-import workflowsuite.kpi.client.settings.ConfigurationNotFoundException;
 import workflowsuite.kpi.client.settings.ConfigurationProvider;
 import workflowsuite.kpi.client.settings.GetConfigurationResult;
 
@@ -32,11 +31,9 @@ public final class ServerTimeProvider implements INtpDataProvider {
     /**
      * Connect by tcp to ntp server and calculate ntp data.
      * @return NTP data.
-     * @throws ConfigurationNotFoundException
-     * @throws IOException
      */
     @Override
-    public NtpData getNtpData() throws ConfigurationNotFoundException, IOException {
+    public NtpData getNtpData() {
 
         GetConfigurationResult<TimeServerConfiguration> result = configurationProvider.tryGetValidConfiguration();
 
@@ -59,13 +56,16 @@ public final class ServerTimeProvider implements INtpDataProvider {
                         return new NtpData(requestTransmission, requestReception,
                                 responseTransmission, responseReception);
                     } else {
-                        throw new ConfigurationNotFoundException(); // TODO: make specialized exception
+                        return NtpData.EMPTY;
                     }
                 }
+            } catch (IOException e) {
+                // if could not connect return empty ntp data.
+                return NtpData.EMPTY;
             }
         }
 
-        throw new ConfigurationNotFoundException();
+        return NtpData.EMPTY;
     }
 
     private static Instant parseInstant(byte[] buffer, int startIndex) {

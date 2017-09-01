@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.time.Duration;
 
 public final class ServiceRegistryClient {
@@ -69,7 +70,7 @@ public final class ServiceRegistryClient {
         try {
             InetAddress address = InetAddress.getLocalHost();
             return address.getHostName();
-        } catch (Exception ex) {
+        } catch (UnknownHostException e) {
             return LOCALHOST;
         }
     }

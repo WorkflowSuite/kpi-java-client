@@ -41,12 +41,10 @@ public final class TimeSynchronizer {
     }
 
     private void synchronize() {
-        try {
-            NtpData ntpData = this.ntpDataProvider.getNtpData();
+        NtpData ntpData = this.ntpDataProvider.getNtpData();
+        if (!NtpData.IsEmpty(ntpData)) {
             TimeSyncData timeOffset = this.timeOffsetCalculator.calculateTimeOffset(ntpData);
             this.lastOffset = timeOffset.getOffset();
-        }  catch (Exception e) {
-
         }
     }
 }
