@@ -37,10 +37,10 @@ public abstract class ServiceRegistryConfigurationProvider<T> implements Configu
         }
 
         if (configuration != null) {
-            return GetConfigurationResult.success(configuration);
+            return GetConfigurationResult.<T>success(configuration);
         }
 
-        return GetConfigurationResult.fail();
+        return GetConfigurationResult.<T>fail();
     }
 
     protected abstract void syncConfiguration();

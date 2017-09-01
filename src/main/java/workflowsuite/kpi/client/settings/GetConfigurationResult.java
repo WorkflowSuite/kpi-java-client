@@ -10,12 +10,23 @@ public final class GetConfigurationResult<T> {
         this.configuration = configuration;
     }
 
-    public static GetConfigurationResult success(Object configuration) {
-        return new GetConfigurationResult(true, configuration);
+    /**
+     * Create success result.
+     * @param configuration Configuration.
+     * @param <U> Type of configuration.
+     * @return Success result.
+     */
+    public static <U> GetConfigurationResult<U> success(U configuration) {
+        return new GetConfigurationResult<U>(true, configuration);
     }
 
-    protected static GetConfigurationResult fail() {
-        return new GetConfigurationResult(false, null);
+    /**
+     * Create fail result.
+     * @param <U> Type of configuration.
+     * @return Failt result.
+     */
+    public static <U> GetConfigurationResult<U> fail() {
+        return new GetConfigurationResult<U>(false, null);
     }
 
     public boolean getSuccess() {
