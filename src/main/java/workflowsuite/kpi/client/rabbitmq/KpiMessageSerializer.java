@@ -39,6 +39,8 @@ final class KpiMessageSerializer {
         pos = putZeroLong(result, pos);
         // len of activity code = 0
         pos = putZeroShort(result, pos);
+        // is before activity not set
+        pos = putByte(result, pos, (byte) -1);
         // len of pid = 0
         pos = putZeroShort(result, pos);
         // len of root pid = 0
@@ -53,8 +55,13 @@ final class KpiMessageSerializer {
                 + UTF8_LENGTH_SIZE + utf8EncodedLength(message.getSessionId())
                 + UTF8_LENGTH_SIZE + utf8EncodedLength(message.getCheckpointCode())
                 // we don't send rest fields.
-                + Long.BYTES + Short.BYTES + Short.BYTES + Short.BYTES;
+                + Long.BYTES + Short.BYTES + Byte.BYTES + Short.BYTES + Short.BYTES;
         return (short) length;
+    }
+
+    private static int putByte(byte[] buffer, int startIndex, byte value) {
+        buffer[startIndex] = value;
+        return startIndex + 1;
     }
 
     private static int putBytes(byte[] buffer, int startIndex, byte[] src) {
