@@ -41,7 +41,10 @@ public final class TimeSynchronizer {
         return this.lastOffset;
     }
 
-    public void Stop() {
+    /**
+     * Stop synchronize time.
+     */
+    public void stop() {
         this.scheduler.shutdown();
     }
 
