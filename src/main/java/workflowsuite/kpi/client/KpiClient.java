@@ -63,6 +63,28 @@ public final class KpiClient {
         return this.buffer.offer(message);
     }
 
+    /**
+     * Notifies that specified checkpoint is unreachable in the current execution path
+     * and all started rules which should be ended in the specified checkpoint should be cancelled.
+     * @param checkpointCode Unique checkpoint code. If the code is invalid, the method does nothing.
+     * @param sessionId Explicit kpi session identifier.
+     * @return {@code true}
+     */
+    public boolean unreachableCheckpoint(String checkpointCode, String sessionId) {
+        Instant now = Instant.now();
+        KpiMessage message = new KpiMessage();
+        message.setCheckpointCode(checkpointCode);
+        message.setSessionId(sessionId);
+        message.setClientEventTime(now);
+        message.setUnreachable(true);
+
+        Instant adjustedTime = now.plus(this.timeSynchronizer.getOffset());
+        message.setSynchronizedEventTime(adjustedTime);
+
+        return this.buffer.offer(message);
+    }
+
+
     private void consumeMessages() {
         while (true) {
             try {

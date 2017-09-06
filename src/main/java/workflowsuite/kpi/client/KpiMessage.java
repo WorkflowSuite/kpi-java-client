@@ -7,6 +7,7 @@ public final class KpiMessage {
     private Instant clientEventTime = Instant.MIN;
     private Instant synchronizedEventTime = Instant.MIN;
     private String sessionId = "";
+    private boolean isUnreachable = false;
 
 
     public Instant getClientEventTime() {
@@ -39,5 +40,13 @@ public final class KpiMessage {
 
     public void setCheckpointCode(String checkpointCode) {
         this.checkpointCode = checkpointCode;
+    }
+
+    public boolean isUnreachable() {
+        return isUnreachable;
+    }
+
+    public void setUnreachable(boolean unreachable) {
+        isUnreachable = unreachable;
     }
 }

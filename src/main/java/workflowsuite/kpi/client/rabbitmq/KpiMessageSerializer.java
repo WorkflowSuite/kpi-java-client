@@ -35,6 +35,8 @@ final class KpiMessageSerializer {
         pos = putUtf8String(result, pos, message.getSessionId());
         // check point code
         pos = putUtf8String(result, pos, message.getCheckpointCode());
+        // is unreacheble
+        pos = putBoolean(result, pos, message.isUnreachable());
         // process type id
         pos = putZeroLong(result, pos);
         // len of activity code = 0
@@ -54,6 +56,7 @@ final class KpiMessageSerializer {
                 + TIMESTAMP_SIZE
                 + UTF8_LENGTH_SIZE + utf8EncodedLength(message.getSessionId())
                 + UTF8_LENGTH_SIZE + utf8EncodedLength(message.getCheckpointCode())
+                + Byte.BYTES
                 // we don't send rest fields.
                 + Long.BYTES + Short.BYTES + Byte.BYTES + Short.BYTES + Short.BYTES;
         return (short) length;
@@ -82,6 +85,9 @@ final class KpiMessageSerializer {
         return endIndex;
     }
 
+    private static int putBoolean(byte[] buffer, int startIndex, boolean value) {
+        return putByte(buffer, startIndex, value ? (byte) 1 : 0);
+    }
 
     private static int putZeroLong(byte[] buffer, int startIndex) {
         buffer[startIndex] = 0;
