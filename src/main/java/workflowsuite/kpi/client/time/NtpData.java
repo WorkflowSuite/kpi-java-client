@@ -35,7 +35,7 @@ final class NtpData {
         return responseReception;
     }
 
-    static boolean IsEmpty(NtpData ntpData) {
-        return ntpData == EMPTY;
+    static boolean isEmpty(NtpData ntpData) {
+        return EMPTY.equals(ntpData);
     }
 }

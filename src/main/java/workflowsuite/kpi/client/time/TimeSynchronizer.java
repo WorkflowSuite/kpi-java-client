@@ -11,6 +11,7 @@ import workflowsuite.kpi.client.settings.GetConfigurationResult;
 public final class TimeSynchronizer {
     private final INtpDataProvider ntpDataProvider;
     private final ITimeOffsetCalculator timeOffsetCalculator;
+    private final ScheduledExecutorService scheduler;
 
     private Duration lastOffset;
 
@@ -26,23 +27,27 @@ public final class TimeSynchronizer {
         this.ntpDataProvider = ntpDataProvider;
         this.timeOffsetCalculator = timeOffsetCalculator;
         this.lastOffset = Duration.ofSeconds(0);
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        this.scheduler = Executors.newSingleThreadScheduledExecutor();
         long timeoutSeconds = TimeServerConfiguration.DEFAULT_CLIENT_SYNC_INTERVAL_SECONDS;
         GetConfigurationResult<TimeServerConfiguration> configurationResult
                 = configurationProvider.tryGetValidConfiguration();
         if (configurationResult.getSuccess()) {
             timeoutSeconds = configurationResult.getConfiguration().getClientTimeSyncIntervalSeconds();
         }
-        scheduler.scheduleWithFixedDelay(this::synchronize, 0, timeoutSeconds, TimeUnit.SECONDS);
+        this.scheduler.scheduleWithFixedDelay(this::synchronize, 0, timeoutSeconds, TimeUnit.SECONDS);
     }
 
     public Duration getOffset() {
         return this.lastOffset;
     }
 
+    public void Stop() {
+        this.scheduler.shutdown();
+    }
+
     private void synchronize() {
         NtpData ntpData = this.ntpDataProvider.getNtpData();
-        if (!NtpData.IsEmpty(ntpData)) {
+        if (!NtpData.isEmpty(ntpData)) {
             TimeSyncData timeOffset = this.timeOffsetCalculator.calculateTimeOffset(ntpData);
             this.lastOffset = timeOffset.getOffset();
         }
