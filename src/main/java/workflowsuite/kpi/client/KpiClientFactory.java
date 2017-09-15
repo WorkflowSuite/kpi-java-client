@@ -20,7 +20,7 @@ public class KpiClientFactory {
      * Create kpi client object.
      * @return Kpi client object.
      */
-    public KpiClientImpl newKpiClient() {
+    public KpiClient newKpiClient() {
         return new KpiClientImpl(srUri);
     }
 }
