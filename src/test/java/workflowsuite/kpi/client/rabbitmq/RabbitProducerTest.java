@@ -9,7 +9,7 @@ import workflowsuite.kpi.client.serviceregistry.ServiceRegistryClient;
 import java.net.URI;
 
 public class RabbitProducerTest {
-    @Test
+    //@Test
     public void trySendMessage() throws Exception {
         ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient(new URI("http://msk-dev-foris:9130/"));
         MessageProducer rabbitProducer = new RabbitProducer(
