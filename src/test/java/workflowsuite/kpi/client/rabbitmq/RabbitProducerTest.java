@@ -10,7 +10,7 @@ import java.net.URI;
 import java.time.Instant;
 
 public class RabbitProducerTest {
-    @Test
+    //@Test
     public void trySendMessage() throws Exception {
         ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient(new URI("http://msk-dev-foris:9130/"));
         MessageProducer rabbitProducer = new RabbitProducer(
