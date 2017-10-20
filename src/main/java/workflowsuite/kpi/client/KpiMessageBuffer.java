@@ -3,9 +3,13 @@ package workflowsuite.kpi.client;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+
 final class KpiMessageBuffer {
 
     private final KpiMessage[] buffer;
+    private final Logger logger;
     private int takeIndex;
     private int putIndex;
     private int count;
@@ -13,10 +17,11 @@ final class KpiMessageBuffer {
     private final Condition notEmpty;
 
 
-    KpiMessageBuffer(int capacity) {
+    KpiMessageBuffer(int capacity, ILoggerFactory loggerFactory) {
         if (!isPow2(capacity)) {
             throw new IllegalArgumentException("capacity should be pow of 2");
         }
+        this.logger = loggerFactory.getLogger(KpiMessageBuffer.class.getName());
         this.buffer = new KpiMessage[capacity];
         this.takeIndex = 0;
         this.putIndex = 0;
@@ -25,8 +30,8 @@ final class KpiMessageBuffer {
         this.notEmpty = this.lock.newCondition();
     }
 
-    public boolean offer(KpiMessage message) {
-
+    public boolean offer(final KpiMessage message) {
+        this.logger.debug("Entering offer()");
         final ReentrantLock sync = this.lock;
         sync.lock();
         try {
@@ -45,24 +50,31 @@ final class KpiMessageBuffer {
             sync.unlock();
         }
 
-
+        this.logger.debug("Leaving offer()");
         return true;
     }
 
     public KpiMessage poll() throws InterruptedException {
+        this.logger.debug("Entering poll()");
         final ReentrantLock sync = this.lock;
         sync.lockInterruptibly();
         try {
             while (this.count == 0) {
+                this.logger.debug("Waiting kpi message...");
                 notEmpty.await();
             }
-            return this.buffer[this.takeIndex];
+            KpiMessage message = this.buffer[this.takeIndex];
+            this.logger.debug("Leaving poll(): checkpointCode = %s sessionId = %s",
+                    message.getCheckpointCode(), message.getSessionId());
+            return message;
         } finally {
             sync.unlock();
         }
+
     }
 
-    public void remove(KpiMessage message) {
+    public void remove(final KpiMessage message) {
+        this.logger.debug("Entering remove()");
         final ReentrantLock sync = this.lock;
         sync.lock();
         try {
@@ -76,12 +88,15 @@ final class KpiMessageBuffer {
         } finally {
             sync.unlock();
         }
+        this.logger.debug("Leaving remove()");
     }
 
     public int size() {
+        this.logger.debug("Entering size()");
         final ReentrantLock sync = this.lock;
         sync.lock();
         try {
+            this.logger.debug("Leaving size():{}", count);
             return count;
         } finally {
             sync.unlock();

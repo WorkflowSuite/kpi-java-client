@@ -9,6 +9,9 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+
 import workflowsuite.kpi.client.KpiMessage;
 import workflowsuite.kpi.client.MessageProducer;
 import workflowsuite.kpi.client.settings.ConfigurationProvider;
@@ -17,6 +20,7 @@ import workflowsuite.kpi.client.settings.GetConfigurationResult;
 public final class RabbitProducer implements MessageProducer {
 
     private final ConfigurationProvider<RabbitQueueConfiguration> configurationProvider;
+    private final Logger logger;
     private final KpiMessageSerializer serializer;
     private Connection connection;
     private Channel channel;
@@ -27,16 +31,21 @@ public final class RabbitProducer implements MessageProducer {
      * for processing {{@link KpiMessage}}.
      * @param configurationProvider The provider for get settings.
      */
-    public RabbitProducer(ConfigurationProvider<RabbitQueueConfiguration> configurationProvider) {
-
+    public RabbitProducer(ConfigurationProvider<RabbitQueueConfiguration> configurationProvider,
+                          ILoggerFactory loggerFactory) {
         this.configurationProvider = configurationProvider;
+        this.logger = loggerFactory.getLogger(RabbitProducer.class.getName());
         this.serializer = new KpiMessageSerializer();
     }
 
     @Override
     public boolean trySendMessage(KpiMessage message) {
+        this.logger.debug("Entering trySendMessage(checkpointCode=%s, sessionId=%s)",
+                message.getCheckpointCode(), message.getSessionId());
         byte[] messageBytes = this.serializer.serialize(message);
-        return trySendMessage(messageBytes);
+        boolean result = trySendMessage(messageBytes);
+        this.logger.debug("Leaving trySendMessage(): {}", result);
+        return result;
     }
 
     private boolean trySendMessage(byte[] message) {
@@ -71,6 +80,7 @@ public final class RabbitProducer implements MessageProducer {
                 amqConnection.flush();*/
 
                 try {
+                    this.logger.debug("Publish message to queue: {}", queueName);
                     this.channel.basicPublish("", queueName, null, message);
                     return true;
                 } catch (IOException e) {
@@ -87,6 +97,7 @@ public final class RabbitProducer implements MessageProducer {
 
                 return true;
             }
+            this.logger.info("Connecting to KPI rabbit ...");
             GetConfigurationResult<RabbitQueueConfiguration> configurationResult
                     = configurationProvider.tryGetValidConfiguration();
             if (!configurationResult.getSuccess()) {
@@ -110,8 +121,16 @@ public final class RabbitProducer implements MessageProducer {
             this.channel.queueDeclare(this.queueName, cfg.isDurable(), cfg.isExclusive(),
                     cfg.isAutoDelete(), arguments);
 
-            return this.connection.isOpen() && this.channel.isOpen();
+            boolean connected = this.connection.isOpen() && this.channel.isOpen();
+            if (connected) {
+                logger.info("Connect to KPI rabbit successfull");
+            } else {
+                logger.warn("Could not connet to KPI rabbit.");
+            }
+
+            return connected;
         } catch (TimeoutException | IOException e) {
+            this.logger.error("Could not connet to KPI rabbit. There are some errors.", e);
             return false;
         }
     }

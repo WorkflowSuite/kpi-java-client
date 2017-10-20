@@ -3,6 +3,10 @@ package workflowsuite.kpi.client;
 import java.net.URI;
 import java.time.Instant;
 
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import workflowsuite.kpi.client.rabbitmq.RabbitConfigurationProvider;
 import workflowsuite.kpi.client.rabbitmq.RabbitProducer;
 import workflowsuite.kpi.client.serviceregistry.ServiceRegistryClient;
@@ -17,6 +21,9 @@ public final class KpiClientImpl implements KpiClient {
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 16;
     private static final long SEND_FAILURE_RELAXATION_TIMEOUT_MILLIS = 1000;
 
+    private static final Logger LOG = LoggerFactory.getLogger(KpiClientImpl.class);
+
+
     private final KpiMessageBuffer buffer;
 
     private final Thread consumeMessagesThread;
@@ -28,10 +35,12 @@ public final class KpiClientImpl implements KpiClient {
      * @param serviceRegistryUri The address where the service registry is deployed.
      */
     KpiClientImpl(URI serviceRegistryUri) {
-        this.buffer = new KpiMessageBuffer(DEFAULT_BUFFER_SIZE);
+        ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
+        this.buffer = new KpiMessageBuffer(DEFAULT_BUFFER_SIZE, loggerFactory);
         ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient(serviceRegistryUri);
         this.messageProducer = new RabbitProducer(
-                new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME));
+                new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME),
+                loggerFactory);
         ConfigurationProvider<TimeServerConfiguration> timeServerConfiguration =
                 new TimeServerConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME);
         this.timeSynchronizer = new TimeSynchronizer(
@@ -52,6 +61,13 @@ public final class KpiClientImpl implements KpiClient {
      */
     @Override
     public boolean onCheckpoint(String checkpointCode, String sessionId) {
+        LOG.debug("Entering onCheckpoint(checkpointCode={}, sessionId = {})", checkpointCode, sessionId);
+        if (checkpointCode == null || checkpointCode.isEmpty()) {
+            throw new IllegalArgumentException("Checkpoint code has no content");
+        }
+        if (sessionId == null || sessionId.isEmpty()) {
+            throw new IllegalArgumentException("Session id has no content");
+        }
         Instant now = Instant.now();
         KpiMessage message = new KpiMessage();
         message.setCheckpointCode(checkpointCode);
@@ -61,7 +77,9 @@ public final class KpiClientImpl implements KpiClient {
         Instant adjustedTime = now.plus(this.timeSynchronizer.getOffset());
         message.setSynchronizedEventTime(adjustedTime);
 
-        return this.buffer.offer(message);
+        boolean result = this.buffer.offer(message);
+        LOG.debug("Leaving onCheckpoint(): {}", result);
+        return result;
     }
 
     /**
@@ -73,6 +91,13 @@ public final class KpiClientImpl implements KpiClient {
      */
     @Override
     public boolean unreachableCheckpoint(String checkpointCode, String sessionId) {
+        LOG.debug("Entering unreachableCheckpoint(checkpointCode={}, sessionId = {})", checkpointCode, sessionId);
+        if (checkpointCode == null || checkpointCode.isEmpty()) {
+            throw new IllegalArgumentException("Checkpoint code has no content");
+        }
+        if (sessionId == null || sessionId.isEmpty()) {
+            throw new IllegalArgumentException("Session id has no content");
+        }
         Instant now = Instant.now();
         KpiMessage message = new KpiMessage();
         message.setCheckpointCode(checkpointCode);
@@ -83,7 +108,9 @@ public final class KpiClientImpl implements KpiClient {
         Instant adjustedTime = now.plus(this.timeSynchronizer.getOffset());
         message.setSynchronizedEventTime(adjustedTime);
 
-        return this.buffer.offer(message);
+        boolean result = this.buffer.offer(message);
+        LOG.debug("Leaving unreachableCheckpoint(): {}", result);
+        return result;
     }
 
 
@@ -91,9 +118,15 @@ public final class KpiClientImpl implements KpiClient {
         while (true) {
             try {
                 KpiMessage message = this.buffer.poll();
+                LOG.debug("Poll kpi message from buffer checkpointCode = %s sessionId = %s",
+                        message.getCheckpointCode(), message.getSessionId());
                 if (!this.messageProducer.trySendMessage(message)) {
+                    LOG.warn("Can not send kpi message checkpointCode = %s sessionId = %s",
+                            message.getCheckpointCode(), message.getSessionId());
                     Thread.sleep(SEND_FAILURE_RELAXATION_TIMEOUT_MILLIS);
                 } else {
+                    LOG.debug("Remove kpi message from buffer checkpointCode = %s sessionId = %s",
+                            message.getCheckpointCode(), message.getSessionId());
                     this.buffer.remove(message);
                 }
             } catch (InterruptedException e) {

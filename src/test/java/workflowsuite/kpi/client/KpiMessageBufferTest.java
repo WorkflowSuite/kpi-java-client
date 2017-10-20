@@ -6,7 +6,7 @@ import org.junit.Test;
 public class KpiMessageBufferTest {
     @Test
     public void offer() throws Exception {
-        KpiMessageBuffer buffer = new KpiMessageBuffer(2);
+        KpiMessageBuffer buffer = new KpiMessageBuffer(2, org.slf4j.LoggerFactory.getILoggerFactory());
         buffer.offer(new KpiMessage());
         Assert.assertEquals(1, buffer.size());
         buffer.offer(new KpiMessage());
@@ -17,7 +17,7 @@ public class KpiMessageBufferTest {
 
     @Test
     public void take() throws Exception {
-        KpiMessageBuffer buffer = new KpiMessageBuffer(2);
+        KpiMessageBuffer buffer = new KpiMessageBuffer(2, org.slf4j.LoggerFactory.getILoggerFactory());
         KpiMessage m = new KpiMessage();
         m.setSessionId("0");
         buffer.offer(m);
