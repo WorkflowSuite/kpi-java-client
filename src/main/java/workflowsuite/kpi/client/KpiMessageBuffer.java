@@ -64,7 +64,7 @@ final class KpiMessageBuffer {
                 notEmpty.await();
             }
             KpiMessage message = this.buffer[this.takeIndex];
-            this.logger.debug("Leaving poll(): checkpointCode = %s sessionId = %s",
+            this.logger.debug("Leaving poll(): checkpointCode = {} sessionId = {}",
                     message.getCheckpointCode(), message.getSessionId());
             return message;
         } finally {

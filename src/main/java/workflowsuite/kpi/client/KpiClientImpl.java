@@ -118,14 +118,14 @@ public final class KpiClientImpl implements KpiClient {
         while (true) {
             try {
                 KpiMessage message = this.buffer.poll();
-                LOG.debug("Poll kpi message from buffer checkpointCode = %s sessionId = %s",
+                LOG.debug("Poll kpi message from buffer checkpointCode = {} sessionId = {}",
                         message.getCheckpointCode(), message.getSessionId());
                 if (!this.messageProducer.trySendMessage(message)) {
-                    LOG.warn("Can not send kpi message checkpointCode = %s sessionId = %s",
+                    LOG.warn("Can not send kpi message checkpointCode = {} sessionId = {}",
                             message.getCheckpointCode(), message.getSessionId());
                     Thread.sleep(SEND_FAILURE_RELAXATION_TIMEOUT_MILLIS);
                 } else {
-                    LOG.debug("Remove kpi message from buffer checkpointCode = %s sessionId = %s",
+                    LOG.debug("Remove kpi message from buffer checkpointCode = {} sessionId = {}",
                             message.getCheckpointCode(), message.getSessionId());
                     this.buffer.remove(message);
                 }

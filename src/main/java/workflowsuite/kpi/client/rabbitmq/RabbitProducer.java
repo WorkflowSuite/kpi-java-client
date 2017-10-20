@@ -40,7 +40,7 @@ public final class RabbitProducer implements MessageProducer {
 
     @Override
     public boolean trySendMessage(KpiMessage message) {
-        this.logger.debug("Entering trySendMessage(checkpointCode=%s, sessionId=%s)",
+        this.logger.debug("Entering trySendMessage(checkpointCode={}, sessionId={})",
                 message.getCheckpointCode(), message.getSessionId());
         byte[] messageBytes = this.serializer.serialize(message);
         boolean result = trySendMessage(messageBytes);
