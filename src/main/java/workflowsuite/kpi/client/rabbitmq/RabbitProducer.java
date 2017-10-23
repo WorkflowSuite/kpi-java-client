@@ -84,6 +84,7 @@ public final class RabbitProducer implements MessageProducer {
                     this.channel.basicPublish("", queueName, null, message);
                     return true;
                 } catch (IOException e) {
+                    this.logger.error("Could not publish message to KPI rabbit. There are some errors.", e);
                     return false;
                 }
             }
@@ -94,13 +95,13 @@ public final class RabbitProducer implements MessageProducer {
     private boolean tryGetOnline() {
         try {
             if (this.connection != null && this.channel != null && this.connection.isOpen() && this.channel.isOpen()) {
-
                 return true;
             }
             this.logger.info("Connecting to KPI rabbit ...");
             GetConfigurationResult<RabbitQueueConfiguration> configurationResult
                     = configurationProvider.tryGetValidConfiguration();
             if (!configurationResult.getSuccess()) {
+                this.logger.error("Could not get rabbit configuration");
                 return false;
             }
             RabbitQueueConfiguration cfg = configurationResult.getConfiguration();
@@ -123,15 +124,20 @@ public final class RabbitProducer implements MessageProducer {
 
             boolean connected = this.connection.isOpen() && this.channel.isOpen();
             if (connected) {
-                logger.info("Connect to KPI rabbit successfull");
+                this.logger.info("Connect to KPI rabbit successfull");
             } else {
-                logger.warn("Could not connet to KPI rabbit.");
+                this.logger.warn("Could not connet to KPI rabbit.");
             }
 
             return connected;
         } catch (TimeoutException | IOException e) {
             this.logger.error("Could not connet to KPI rabbit. There are some errors.", e);
             return false;
+//CHECKSTYLE:OFF IllegalCatch
+        }  catch (Exception e) {
+//CHECKSTYLE:ON IllegalCatch
+            this.logger.error("Could not connet to KPI rabbit. There are some unexpected errors.", e);
+            throw e;
         }
     }
 }

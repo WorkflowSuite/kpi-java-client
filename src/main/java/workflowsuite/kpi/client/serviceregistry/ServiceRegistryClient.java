@@ -9,6 +9,9 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.time.Duration;
 
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+
 public final class ServiceRegistryClient {
     private static final String LOCALHOST = "localhost";
     private static final String SERVICE_REGISTRY_BASE_RESOURCE = "worklfow/serviceregistry/api/v1/";
@@ -17,14 +20,17 @@ public final class ServiceRegistryClient {
 
     private final String serverEndpoint;
     private final String clientName;
+    private final Logger logger;
 
     /**
      * Create instance of {{@link ServiceRegistryClient}} class.
      * @param serverEndpoint The address where the service registry is deployed.
+     * @param loggerFactory
      */
-    public ServiceRegistryClient(URI serverEndpoint) {
+    public ServiceRegistryClient(URI serverEndpoint, ILoggerFactory loggerFactory) {
         this.serverEndpoint = serverEndpoint.toString();
         this.clientName = getMachineName();
+        this.logger = loggerFactory.getLogger(ServiceRegistryClient.class.getName());
     }
 
     /**
@@ -56,6 +62,8 @@ public final class ServiceRegistryClient {
                 }
             }
         } catch (IOException ex) {
+            this.logger.error("Could not get service endpoint. Server {} contract {}.",
+                    this.serverEndpoint, contract);
             return ServiceEndpointsInfo.EMPTY;
         } finally {
             if (connection != null) {

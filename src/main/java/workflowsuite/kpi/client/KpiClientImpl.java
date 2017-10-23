@@ -37,7 +37,7 @@ public final class KpiClientImpl implements KpiClient {
     KpiClientImpl(URI serviceRegistryUri) {
         ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
         this.buffer = new KpiMessageBuffer(DEFAULT_BUFFER_SIZE, loggerFactory);
-        ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient(serviceRegistryUri);
+        ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient(serviceRegistryUri, loggerFactory);
         this.messageProducer = new RabbitProducer(
                 new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME),
                 loggerFactory);

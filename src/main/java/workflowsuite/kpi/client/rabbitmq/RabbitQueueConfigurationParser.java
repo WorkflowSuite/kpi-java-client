@@ -26,9 +26,6 @@ class RabbitQueueConfigurationParser extends DefaultHandler {
 
     public static RabbitQueueConfiguration parse(String contract,
                                                  ServiceEndpointsInfo endpointsInfo) {
-        if (endpointsInfo.endpoints.size() == 0) {
-            return new RabbitQueueConfiguration();
-        }
 
         RabbitQueueConfigurationParser parser = new RabbitQueueConfigurationParser();
         parser.configuration = new RabbitQueueConfiguration();
