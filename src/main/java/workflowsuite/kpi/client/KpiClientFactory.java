@@ -1,6 +1,7 @@
 package workflowsuite.kpi.client;
 
 import java.net.URI;
+import javax.net.SocketFactory;
 
 public class KpiClientFactory {
     private URI srUri;
@@ -21,6 +22,6 @@ public class KpiClientFactory {
      * @return Kpi client object.
      */
     public KpiClient newKpiClient() {
-        return new KpiClientImpl(srUri);
+        return new KpiClientImpl(srUri, SocketFactory.getDefault());
     }
 }

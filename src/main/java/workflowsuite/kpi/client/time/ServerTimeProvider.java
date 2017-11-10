@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.time.Instant;
+import javax.net.SocketFactory;
 
 import workflowsuite.kpi.client.bits.BitConverter;
 import workflowsuite.kpi.client.settings.ConfigurationProvider;
@@ -17,14 +18,17 @@ public final class ServerTimeProvider implements INtpDataProvider {
     private static final int SOCKET_TIMEOUT_MILLIS = 5000;
 
     private final ConfigurationProvider<TimeServerConfiguration> configurationProvider;
+    private final SocketFactory socketFactory;
     private final byte[] buffer;
 
     /**
      * Create instance of {{@link ServerTimeProvider}} class.
      * @param configuration Configuration provider for getting ntp settings.
      */
-    public ServerTimeProvider(ConfigurationProvider<TimeServerConfiguration> configuration) {
+    public ServerTimeProvider(ConfigurationProvider<TimeServerConfiguration> configuration,
+                              SocketFactory socketFactory) {
         this.configurationProvider = configuration;
+        this.socketFactory = socketFactory;
         this.buffer = new byte[BUFFER_SIZE];
     }
 
@@ -39,7 +43,7 @@ public final class ServerTimeProvider implements INtpDataProvider {
 
         if (result.getSuccess()) {
             TimeServerConfiguration configuration = result.getConfiguration();
-            try (Socket socket = new Socket()) {
+            try (Socket socket = socketFactory.createSocket()) {
                 socket.setReceiveBufferSize(BUFFER_SIZE);
                 socket.setKeepAlive(false);
                 socket.setSoTimeout(SOCKET_TIMEOUT_MILLIS);

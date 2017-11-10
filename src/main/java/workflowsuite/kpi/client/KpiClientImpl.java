@@ -2,6 +2,7 @@ package workflowsuite.kpi.client;
 
 import java.net.URI;
 import java.time.Instant;
+import javax.net.SocketFactory;
 
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
@@ -34,18 +35,18 @@ public final class KpiClientImpl implements KpiClient {
      * Create new instance of kpi client.
      * @param serviceRegistryUri The address where the service registry is deployed.
      */
-    KpiClientImpl(URI serviceRegistryUri) {
+    KpiClientImpl(URI serviceRegistryUri, SocketFactory socketFactory) {
         ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
         this.buffer = new KpiMessageBuffer(DEFAULT_BUFFER_SIZE, loggerFactory);
         ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient(serviceRegistryUri, loggerFactory);
         this.messageProducer = new RabbitProducer(
                 new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME),
-                loggerFactory);
+                loggerFactory, socketFactory);
         ConfigurationProvider<TimeServerConfiguration> timeServerConfiguration =
                 new TimeServerConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME);
         this.timeSynchronizer = new TimeSynchronizer(
                 timeServerConfiguration,
-                new ServerTimeProvider(timeServerConfiguration),
+                new ServerTimeProvider(timeServerConfiguration, socketFactory),
                 new TimeOffsetCalculator());
 
         this.consumeMessagesThread = new Thread(this::consumeMessages);
@@ -112,7 +113,6 @@ public final class KpiClientImpl implements KpiClient {
         LOG.debug("Leaving unreachableCheckpoint(): {}", result);
         return result;
     }
-
 
     private void consumeMessages() {
         while (true) {

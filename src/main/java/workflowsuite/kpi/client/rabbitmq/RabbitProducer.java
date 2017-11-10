@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
+import javax.net.SocketFactory;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -21,6 +22,7 @@ public final class RabbitProducer implements MessageProducer {
 
     private final ConfigurationProvider<RabbitQueueConfiguration> configurationProvider;
     private final Logger logger;
+    private final SocketFactory socketFactory;
     private final KpiMessageSerializer serializer;
     private Connection connection;
     private Channel channel;
@@ -32,9 +34,10 @@ public final class RabbitProducer implements MessageProducer {
      * @param configurationProvider The provider for get settings.
      */
     public RabbitProducer(ConfigurationProvider<RabbitQueueConfiguration> configurationProvider,
-                          ILoggerFactory loggerFactory) {
+                          ILoggerFactory loggerFactory, SocketFactory socketFactory) {
         this.configurationProvider = configurationProvider;
         this.logger = loggerFactory.getLogger(RabbitProducer.class.getName());
+        this.socketFactory = socketFactory;
         this.serializer = new KpiMessageSerializer();
     }
 
@@ -111,6 +114,7 @@ public final class RabbitProducer implements MessageProducer {
             connectionFactory.setUsername(cfg.getUserName());
             connectionFactory.setPassword(cfg.getPassword());
             connectionFactory.setAutomaticRecoveryEnabled(false);
+            connectionFactory.setSocketFactory(this.socketFactory);
 
             this.connection = connectionFactory.newConnection("Workflow Suite KPI Java Client");
             this.channel = this.connection.createChannel();

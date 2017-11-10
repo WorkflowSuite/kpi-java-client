@@ -5,6 +5,7 @@ import workflowsuite.kpi.client.KpiMessage;
 import workflowsuite.kpi.client.MessageProducer;
 import workflowsuite.kpi.client.serviceregistry.ServiceRegistryClient;
 
+import javax.net.SocketFactory;
 import java.net.URI;
 import java.time.Instant;
 
@@ -15,7 +16,7 @@ public class RabbitProducerTest {
                 org.slf4j.LoggerFactory.getILoggerFactory());
         MessageProducer rabbitProducer = new RabbitProducer(
                 new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME),
-                org.slf4j.LoggerFactory.getILoggerFactory());
+                org.slf4j.LoggerFactory.getILoggerFactory(), SocketFactory.getDefault());
         KpiMessage msg = new KpiMessage();
         msg.setSessionId("02be60e389d24425bb6e6254fbfe1cae");
         msg.setClientEventTime(Instant.now());
