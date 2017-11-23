@@ -1,6 +1,7 @@
 package workflowsuite.kpi.client;
 
 import java.net.URI;
+import java.time.Duration;
 import java.time.Instant;
 import javax.net.SocketFactory;
 
@@ -112,6 +113,17 @@ public final class KpiClientImpl implements KpiClient {
         boolean result = this.buffer.offer(message);
         LOG.debug("Leaving unreachableCheckpoint(): {}", result);
         return result;
+    }
+
+    /**
+     * Trace duration metric.
+     * @param metricCode Unique metric code. If the code is invalid, the method does nothing.
+     * @param value Value of metric.
+     * @return {@code true}
+     */
+    @Override
+    public boolean traceDuration(String metricCode, Duration value) {
+        return true;
     }
 
     private void consumeMessages() {

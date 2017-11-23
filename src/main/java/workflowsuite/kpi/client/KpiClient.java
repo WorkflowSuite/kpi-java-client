@@ -1,5 +1,7 @@
 package workflowsuite.kpi.client;
 
+import java.time.Duration;
+
 public interface KpiClient {
     /**
      * Registers a checkpoint crossing fact for an explicitly specified session.
@@ -17,4 +19,12 @@ public interface KpiClient {
      * @return {@code true}
      */
     boolean unreachableCheckpoint(String checkpointCode, String sessionId);
+
+    /**
+     * Trace duration metric.
+     * @param metricCode Unique metric code. If the code is invalid, the method does nothing.
+     * @param value Value of metric.
+     * @return {@code true}
+     */
+    boolean traceDuration(String metricCode, Duration value);
 }
