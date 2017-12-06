@@ -15,7 +15,8 @@ public class RabbitProducerTest {
         ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient(new URI("http://msk-dev-foris:9130/"),
                 org.slf4j.LoggerFactory.getILoggerFactory());
         MessageProducer rabbitProducer = new RabbitProducer(
-                new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME),
+                new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME,
+                        RabbitConfigurationProvider.KPI_GENERAL_QUEUE_CONTRACT),
                 org.slf4j.LoggerFactory.getILoggerFactory(), SocketFactory.getDefault());
         KpiMessage msg = new KpiMessage();
         msg.setSessionId("02be60e389d24425bb6e6254fbfe1cae");

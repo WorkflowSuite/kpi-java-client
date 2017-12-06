@@ -38,11 +38,8 @@ public final class KpiClientImpl implements KpiClient {
      */
     KpiClientImpl(URI serviceRegistryUri, SocketFactory socketFactory) {
         ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
-        this.buffer = new KpiMessageBuffer(DEFAULT_BUFFER_SIZE, loggerFactory);
         ServiceRegistryClient serviceRegistryClient = new ServiceRegistryClient(serviceRegistryUri, loggerFactory);
-        this.messageProducer = new RabbitProducer(
-                new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME),
-                loggerFactory, socketFactory);
+
         ConfigurationProvider<TimeServerConfiguration> timeServerConfiguration =
                 new TimeServerConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME);
         this.timeSynchronizer = new TimeSynchronizer(
@@ -50,8 +47,13 @@ public final class KpiClientImpl implements KpiClient {
                 new ServerTimeProvider(timeServerConfiguration, socketFactory),
                 new TimeOffsetCalculator());
 
+        this.buffer = new KpiMessageBuffer(DEFAULT_BUFFER_SIZE, loggerFactory);
+        this.messageProducer = new RabbitProducer(
+                new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME,
+                        RabbitConfigurationProvider.KPI_GENERAL_QUEUE_CONTRACT),
+                loggerFactory, socketFactory);
         this.consumeMessagesThread = new Thread(this::consumeMessages);
-        this.consumeMessagesThread.setName("KPI_CONSUME_MESSAGE");
+        this.consumeMessagesThread.setName("KPI_GENERAL_CONSUME_MESSAGE");
         this.consumeMessagesThread.start();
     }
 
@@ -118,11 +120,29 @@ public final class KpiClientImpl implements KpiClient {
     /**
      * Trace duration metric.
      * @param metricCode Unique metric code. If the code is invalid, the method does nothing.
-     * @param value Value of metric.
+     * @param duration Value of metric.
      * @return {@code true}
      */
     @Override
-    public boolean traceDuration(String metricCode, Duration value) {
+    public boolean traceDuration(String metricCode, Duration duration) {
+        LOG.debug("Entering traceDuration(metricCode={}, value = {} ms)", metricCode, duration);
+        if (metricCode == null || metricCode.isEmpty()) {
+            throw new IllegalArgumentException("Metric code has no content");
+        }
+        if (duration == null) {
+            throw new IllegalArgumentException("Duration is null");
+        }
+        Instant now = Instant.now();
+        DurationMetricMessage message = new DurationMetricMessage();
+        message.setMetricCode(metricCode);
+        message.setDuration(duration);
+        message.setClientEventTime(now);
+
+        Instant adjustedTime = now.plus(this.timeSynchronizer.getOffset());
+        message.setSynchronizedEventTime(adjustedTime);
+
+        boolean result = true;
+        LOG.debug("Leaving traceDuration(): {}", result);
         return true;
     }
 
