@@ -1,6 +1,6 @@
 package workflowsuite.kpi.client;
 
-public interface MessageProducer {
+public interface MessageProducer<T> {
     MessageProducer DISCARD = new DiscardProducer();
 
     /**
@@ -8,11 +8,11 @@ public interface MessageProducer {
      * @param message Message which will be send.
      * @return {@code true} if message was send, otherwise {@code false}.
      */
-    boolean trySendMessage(CheckpointMessage message);
+    boolean trySendMessage(T message);
 
-    final class DiscardProducer implements MessageProducer {
+    final class DiscardProducer<T> implements MessageProducer<T> {
         @Override
-        public boolean trySendMessage(CheckpointMessage message) {
+        public boolean trySendMessage(T message) {
             return true;
         }
     }

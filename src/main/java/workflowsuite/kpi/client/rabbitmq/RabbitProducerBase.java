@@ -18,41 +18,29 @@ import workflowsuite.kpi.client.MessageProducer;
 import workflowsuite.kpi.client.settings.ConfigurationProvider;
 import workflowsuite.kpi.client.settings.GetConfigurationResult;
 
-public final class RabbitProducer implements MessageProducer {
-
+public abstract class RabbitProducerBase<T> implements MessageProducer<T> {
     private final ConfigurationProvider<RabbitQueueConfiguration> configurationProvider;
-    private final Logger logger;
     private final SocketFactory socketFactory;
-    private final CheckpointMessageSerializer serializer;
     private Connection connection;
     private Channel channel;
     private String queueName = "";
+
+    protected final Logger logger;
 
     /**
      * Create instance of {{@link ConfigurationProvider}} class
      * for processing {{@link CheckpointMessage}}.
      * @param configurationProvider The provider for get settings.
      */
-    public RabbitProducer(ConfigurationProvider<RabbitQueueConfiguration> configurationProvider,
+    public RabbitProducerBase(ConfigurationProvider<RabbitQueueConfiguration> configurationProvider,
                           ILoggerFactory loggerFactory, SocketFactory socketFactory) {
         this.configurationProvider = configurationProvider;
-        this.logger = loggerFactory.getLogger(RabbitProducer.class.getName());
+        this.logger = loggerFactory.getLogger(this.getClass().getName());
         this.socketFactory = socketFactory;
-        this.serializer = new CheckpointMessageSerializer();
     }
 
-    @Override
-    public boolean trySendMessage(CheckpointMessage message) {
-        this.logger.debug("Entering trySendMessage(checkpointCode={}, sessionId={})",
-                message.getCheckpointCode(), message.getSessionId());
-        byte[] messageBytes = this.serializer.serialize(message);
-        boolean result = trySendMessage(messageBytes);
-        this.logger.debug("Leaving trySendMessage(): {}", result);
-        return result;
-    }
-
-    private boolean trySendMessage(byte[] message) {
-            if (tryGetOnline()) {
+    protected boolean trySendMessage(byte[] message) {
+        if (tryGetOnline()) {
                 /*int channelNumber = this.channel.getChannelNumber();
                 AMQConnection amqConnection = (AMQConnection) this.channel.getConnection();
 
@@ -82,17 +70,17 @@ public final class RabbitProducer implements MessageProducer {
                 }
                 amqConnection.flush();*/
 
-                try {
-                    this.logger.debug("Publish message to queue: {}", queueName);
-                    this.channel.basicPublish("", queueName, null, message);
-                    return true;
-                } catch (IOException e) {
-                    this.logger.error("Could not publish message to KPI rabbit. There are some errors.", e);
-                    return false;
-                }
+            try {
+                this.logger.debug("Publish message to queue: {}", queueName);
+                this.channel.basicPublish("", queueName, null, message);
+                return true;
+            } catch (IOException e) {
+                this.logger.error("Could not publish message to KPI rabbit. There are some errors.", e);
+                return false;
             }
+        }
 
-            return false;
+        return false;
     }
 
     private boolean tryGetOnline() {

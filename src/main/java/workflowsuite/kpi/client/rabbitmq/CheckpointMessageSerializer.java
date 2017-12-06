@@ -2,9 +2,10 @@ package workflowsuite.kpi.client.rabbitmq;
 
 import workflowsuite.kpi.client.CheckpointMessage;
 
-final class CheckpointMessageSerializer extends MessageSerializerBase {
+final class CheckpointMessageSerializer extends MessageSerializerBase<CheckpointMessage> {
     private static final byte[] HEADER_BYTES = new byte[]{-19, -2, 0, 0};
 
+    @Override
     protected byte[] serialize(final CheckpointMessage message) {
         short payloadSize = calculatePayloadSize(message);
 
@@ -26,7 +27,7 @@ final class CheckpointMessageSerializer extends MessageSerializerBase {
         pos = putUtf8String(result, pos, message.getSessionId());
         // check point code
         pos = putUtf8String(result, pos, message.getCheckpointCode());
-        // is unreacheble
+        // is unreachable
         pos = putBoolean(result, pos, message.isUnreachable());
         // process type id
         pos = putZeroLong(result, pos);
@@ -43,7 +44,7 @@ final class CheckpointMessageSerializer extends MessageSerializerBase {
     }
 
     private static short calculatePayloadSize(CheckpointMessage message) {
-        int length =  TIMESTAMP_SIZE
+        int length = TIMESTAMP_SIZE
                 + TIMESTAMP_SIZE
                 + UTF8_LENGTH_SIZE + utf8EncodedLength(message.getSessionId())
                 + UTF8_LENGTH_SIZE + utf8EncodedLength(message.getCheckpointCode())

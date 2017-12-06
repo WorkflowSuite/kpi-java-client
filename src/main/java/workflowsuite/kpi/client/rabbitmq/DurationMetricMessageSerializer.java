@@ -2,9 +2,10 @@ package workflowsuite.kpi.client.rabbitmq;
 
 import workflowsuite.kpi.client.DurationMetricMessage;
 
-final class DurationMetricMessageSerializer extends MessageSerializerBase {
+final class DurationMetricMessageSerializer extends MessageSerializerBase<DurationMetricMessage> {
     private static final byte[] HEADER_BYTES = new byte[]{13, -16, 0, 0};
 
+    @Override
     protected byte[] serialize(final DurationMetricMessage message) {
         short payloadSize = calculatePayloadSize(message);
 

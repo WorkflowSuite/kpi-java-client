@@ -1,6 +1,6 @@
 package workflowsuite.kpi.client.rabbitmq;
 
-abstract class MessageSerializerBase {
+abstract class MessageSerializerBase<T> {
     static final int HEADER_SIZE = Integer.BYTES;
     static final int PACKAGE_VERSION_SIZE = Short.BYTES;
 
@@ -12,6 +12,8 @@ abstract class MessageSerializerBase {
     static final short PACKAGE_VERSION = 1;
 
     MessageSerializerBase() { }
+
+    protected abstract byte[] serialize(T message);
 
     static int putByte(byte[] buffer, int startIndex, byte value) {
         buffer[startIndex] = value;

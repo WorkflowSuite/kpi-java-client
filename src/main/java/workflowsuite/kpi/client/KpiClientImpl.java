@@ -9,8 +9,9 @@ import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import workflowsuite.kpi.client.rabbitmq.CheckpointRabbitProducer;
+import workflowsuite.kpi.client.rabbitmq.DurationMetricRabbitProducer;
 import workflowsuite.kpi.client.rabbitmq.RabbitConfigurationProvider;
-import workflowsuite.kpi.client.rabbitmq.RabbitProducer;
 import workflowsuite.kpi.client.serviceregistry.ServiceRegistryClient;
 import workflowsuite.kpi.client.settings.ConfigurationProvider;
 import workflowsuite.kpi.client.time.ServerTimeProvider;
@@ -25,12 +26,15 @@ public final class KpiClientImpl implements KpiClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(KpiClientImpl.class);
 
-
-    private final CheckpointMessageBuffer buffer;
-
-    private final Thread consumeMessagesThread;
-    private final MessageProducer messageProducer;
     private final TimeSynchronizer timeSynchronizer;
+
+    private final CircleBuffer<CheckpointMessage> checkpointMessageBuffer;
+    private final Thread checkpointMessagesConsumeThread;
+    private final CheckpointRabbitProducer checkpointMessageProducer;
+
+    private final CircleBuffer<DurationMetricMessage> durationMetricBuffer;
+    private final Thread durationMetricConsumeThread;
+    private final DurationMetricRabbitProducer durationMetricMessageProducer;
 
     /**
      * Create new instance of kpi client.
@@ -47,14 +51,25 @@ public final class KpiClientImpl implements KpiClient {
                 new ServerTimeProvider(timeServerConfiguration, socketFactory),
                 new TimeOffsetCalculator());
 
-        this.buffer = new CheckpointMessageBuffer(DEFAULT_BUFFER_SIZE, loggerFactory);
-        this.messageProducer = new RabbitProducer(
+        this.checkpointMessageBuffer = new CircleBuffer<>(CheckpointMessage.class, DEFAULT_BUFFER_SIZE, loggerFactory);
+        this.checkpointMessageProducer = new CheckpointRabbitProducer(
                 new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME,
                         RabbitConfigurationProvider.KPI_GENERAL_QUEUE_CONTRACT),
                 loggerFactory, socketFactory);
-        this.consumeMessagesThread = new Thread(this::consumeMessages);
-        this.consumeMessagesThread.setName("KPI_GENERAL_CONSUME_MESSAGE");
-        this.consumeMessagesThread.start();
+        this.checkpointMessagesConsumeThread = new Thread(this::consumeCheckpointMessages);
+        this.checkpointMessagesConsumeThread.setName("KPI_GENERAL_CONSUME_MESSAGE");
+        this.checkpointMessagesConsumeThread.start();
+
+        this.durationMetricBuffer = new CircleBuffer<DurationMetricMessage>(DurationMetricMessage.class,
+                DEFAULT_BUFFER_SIZE, loggerFactory);
+        this.durationMetricMessageProducer = new DurationMetricRabbitProducer(
+                new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME,
+                        RabbitConfigurationProvider.KPI_DURATION_METRIC_QUEUE_CONTRACT),
+                loggerFactory, socketFactory);
+
+        this.durationMetricConsumeThread = new Thread(this::consumeDurationMetricMessages);
+        this.durationMetricConsumeThread.setName("KPI_DURATION_METRIC_CONSUME_MESSAGE");
+        this.durationMetricConsumeThread.start();
     }
 
     /**
@@ -81,7 +96,7 @@ public final class KpiClientImpl implements KpiClient {
         Instant adjustedTime = now.plus(this.timeSynchronizer.getOffset());
         message.setSynchronizedEventTime(adjustedTime);
 
-        boolean result = this.buffer.offer(message);
+        boolean result = this.checkpointMessageBuffer.offer(message);
         LOG.debug("Leaving onCheckpoint(): {}", result);
         return result;
     }
@@ -112,7 +127,7 @@ public final class KpiClientImpl implements KpiClient {
         Instant adjustedTime = now.plus(this.timeSynchronizer.getOffset());
         message.setSynchronizedEventTime(adjustedTime);
 
-        boolean result = this.buffer.offer(message);
+        boolean result = this.checkpointMessageBuffer.offer(message);
         LOG.debug("Leaving unreachableCheckpoint(): {}", result);
         return result;
     }
@@ -141,25 +156,46 @@ public final class KpiClientImpl implements KpiClient {
         Instant adjustedTime = now.plus(this.timeSynchronizer.getOffset());
         message.setSynchronizedEventTime(adjustedTime);
 
-        boolean result = true;
+        boolean result = this.durationMetricBuffer.offer(message);
         LOG.debug("Leaving traceDuration(): {}", result);
         return true;
     }
 
-    private void consumeMessages() {
+    private void consumeCheckpointMessages() {
         while (true) {
             try {
-                CheckpointMessage message = this.buffer.poll();
-                LOG.debug("Poll kpi message from buffer checkpointCode = {} sessionId = {}",
+                CheckpointMessage message = this.checkpointMessageBuffer.poll();
+                LOG.debug("Poll message from checkpoint message buffer checkpointCode = {} sessionId = {}",
                         message.getCheckpointCode(), message.getSessionId());
-                if (!this.messageProducer.trySendMessage(message)) {
-                    LOG.warn("Can not send kpi message checkpointCode = {} sessionId = {}",
+                if (!this.checkpointMessageProducer.trySendMessage(message)) {
+                    LOG.warn("Can not send checkpoint message checkpointCode = {} sessionId = {}",
                             message.getCheckpointCode(), message.getSessionId());
                     Thread.sleep(SEND_FAILURE_RELAXATION_TIMEOUT_MILLIS);
                 } else {
-                    LOG.debug("Remove kpi message from buffer checkpointCode = {} sessionId = {}",
+                    LOG.debug("Remove message from checkpoint message buffer checkpointCode = {} sessionId = {}",
                             message.getCheckpointCode(), message.getSessionId());
-                    this.buffer.remove(message);
+                    this.checkpointMessageBuffer.remove(message);
+                }
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
+    }
+
+    private void consumeDurationMetricMessages() {
+        while (true) {
+            try {
+                DurationMetricMessage message = this.durationMetricBuffer.poll();
+                LOG.debug("Poll message from duration metric message buffer metricCode = {} duration = {}",
+                        message.getMetricCode(), message.getDuration());
+                if (!this.durationMetricMessageProducer.trySendMessage(message)) {
+                    LOG.warn("Can not send duration metric message metricCode = {} duration = {}",
+                            message.getMetricCode(), message.getDuration());
+                    Thread.sleep(SEND_FAILURE_RELAXATION_TIMEOUT_MILLIS);
+                } else {
+                    LOG.debug("Remove message from duration metric message buffer metricCode = {} duration = {}",
+                            message.getMetricCode(), message.getDuration());
+                    this.durationMetricBuffer.remove(message);
                 }
             } catch (InterruptedException e) {
                 return;

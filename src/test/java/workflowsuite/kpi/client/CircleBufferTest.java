@@ -3,10 +3,11 @@ package workflowsuite.kpi.client;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CheckpointMessageBufferTest {
+public class CircleBufferTest {
     @Test
     public void offer() throws Exception {
-        CheckpointMessageBuffer buffer = new CheckpointMessageBuffer(2, org.slf4j.LoggerFactory.getILoggerFactory());
+        CircleBuffer<CheckpointMessage> buffer = new CircleBuffer<>(CheckpointMessage.class, 2,
+                org.slf4j.LoggerFactory.getILoggerFactory());
         buffer.offer(new CheckpointMessage());
         Assert.assertEquals(1, buffer.size());
         buffer.offer(new CheckpointMessage());
@@ -17,7 +18,8 @@ public class CheckpointMessageBufferTest {
 
     @Test
     public void take() throws Exception {
-        CheckpointMessageBuffer buffer = new CheckpointMessageBuffer(2, org.slf4j.LoggerFactory.getILoggerFactory());
+        CircleBuffer<CheckpointMessage> buffer = new CircleBuffer<>(CheckpointMessage.class, 2,
+                org.slf4j.LoggerFactory.getILoggerFactory());
         CheckpointMessage m = new CheckpointMessage();
         m.setSessionId("0");
         buffer.offer(m);
