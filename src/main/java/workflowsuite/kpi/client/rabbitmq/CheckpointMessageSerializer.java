@@ -1,11 +1,11 @@
 package workflowsuite.kpi.client.rabbitmq;
 
-import workflowsuite.kpi.client.KpiMessage;
+import workflowsuite.kpi.client.CheckpointMessage;
 
-final class KpiMessageSerializer extends MessageSerializerBase {
+final class CheckpointMessageSerializer extends MessageSerializerBase {
     private static final byte[] HEADER_BYTES = new byte[]{-19, -2, 0, 0};
 
-    protected byte[] serialize(final KpiMessage message) {
+    protected byte[] serialize(final CheckpointMessage message) {
         short payloadSize = calculatePayloadSize(message);
 
         int messageSize = HEADER_SIZE + PACKAGE_VERSION_SIZE + PAYLOAD_LENGTH_SIZE + payloadSize;
@@ -42,7 +42,7 @@ final class KpiMessageSerializer extends MessageSerializerBase {
         return result;
     }
 
-    private static short calculatePayloadSize(KpiMessage message) {
+    private static short calculatePayloadSize(CheckpointMessage message) {
         int length =  TIMESTAMP_SIZE
                 + TIMESTAMP_SIZE
                 + UTF8_LENGTH_SIZE + utf8EncodedLength(message.getSessionId())

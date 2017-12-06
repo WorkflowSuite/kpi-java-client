@@ -3,28 +3,28 @@ package workflowsuite.kpi.client;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class KpiMessageBufferTest {
+public class CheckpointMessageBufferTest {
     @Test
     public void offer() throws Exception {
-        KpiMessageBuffer buffer = new KpiMessageBuffer(2, org.slf4j.LoggerFactory.getILoggerFactory());
-        buffer.offer(new KpiMessage());
+        CheckpointMessageBuffer buffer = new CheckpointMessageBuffer(2, org.slf4j.LoggerFactory.getILoggerFactory());
+        buffer.offer(new CheckpointMessage());
         Assert.assertEquals(1, buffer.size());
-        buffer.offer(new KpiMessage());
+        buffer.offer(new CheckpointMessage());
         Assert.assertEquals(2, buffer.size());
-        buffer.offer(new KpiMessage());
+        buffer.offer(new CheckpointMessage());
         Assert.assertEquals(2, buffer.size());
     }
 
     @Test
     public void take() throws Exception {
-        KpiMessageBuffer buffer = new KpiMessageBuffer(2, org.slf4j.LoggerFactory.getILoggerFactory());
-        KpiMessage m = new KpiMessage();
+        CheckpointMessageBuffer buffer = new CheckpointMessageBuffer(2, org.slf4j.LoggerFactory.getILoggerFactory());
+        CheckpointMessage m = new CheckpointMessage();
         m.setSessionId("0");
         buffer.offer(m);
-        m = new KpiMessage();
+        m = new CheckpointMessage();
         m.setSessionId("1");
         buffer.offer(m);
-        m = new KpiMessage();
+        m = new CheckpointMessage();
         m.setSessionId("2");
         buffer.offer(m);
         Assert.assertEquals(2, buffer.size());

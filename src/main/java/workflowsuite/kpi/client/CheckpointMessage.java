@@ -2,7 +2,7 @@ package workflowsuite.kpi.client;
 
 import java.time.Instant;
 
-public final class KpiMessage {
+public final class CheckpointMessage {
     private String checkpointCode = "";
     private Instant clientEventTime = Instant.MIN;
     private Instant synchronizedEventTime = Instant.MIN;

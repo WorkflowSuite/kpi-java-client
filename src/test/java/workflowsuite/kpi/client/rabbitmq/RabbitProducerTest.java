@@ -1,7 +1,7 @@
 package workflowsuite.kpi.client.rabbitmq;
 
 import org.junit.Assert;
-import workflowsuite.kpi.client.KpiMessage;
+import workflowsuite.kpi.client.CheckpointMessage;
 import workflowsuite.kpi.client.MessageProducer;
 import workflowsuite.kpi.client.serviceregistry.ServiceRegistryClient;
 
@@ -18,7 +18,7 @@ public class RabbitProducerTest {
                 new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME,
                         RabbitConfigurationProvider.KPI_GENERAL_QUEUE_CONTRACT),
                 org.slf4j.LoggerFactory.getILoggerFactory(), SocketFactory.getDefault());
-        KpiMessage msg = new KpiMessage();
+        CheckpointMessage msg = new CheckpointMessage();
         msg.setSessionId("02be60e389d24425bb6e6254fbfe1cae");
         msg.setClientEventTime(Instant.now());
         msg.setSynchronizedEventTime(Instant.now());

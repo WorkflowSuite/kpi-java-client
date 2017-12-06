@@ -8,11 +8,11 @@ public interface MessageProducer {
      * @param message Message which will be send.
      * @return {@code true} if message was send, otherwise {@code false}.
      */
-    boolean trySendMessage(KpiMessage message);
+    boolean trySendMessage(CheckpointMessage message);
 
     final class DiscardProducer implements MessageProducer {
         @Override
-        public boolean trySendMessage(KpiMessage message) {
+        public boolean trySendMessage(CheckpointMessage message) {
             return true;
         }
     }

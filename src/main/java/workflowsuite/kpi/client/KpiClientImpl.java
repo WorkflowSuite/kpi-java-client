@@ -26,7 +26,7 @@ public final class KpiClientImpl implements KpiClient {
     private static final Logger LOG = LoggerFactory.getLogger(KpiClientImpl.class);
 
 
-    private final KpiMessageBuffer buffer;
+    private final CheckpointMessageBuffer buffer;
 
     private final Thread consumeMessagesThread;
     private final MessageProducer messageProducer;
@@ -47,7 +47,7 @@ public final class KpiClientImpl implements KpiClient {
                 new ServerTimeProvider(timeServerConfiguration, socketFactory),
                 new TimeOffsetCalculator());
 
-        this.buffer = new KpiMessageBuffer(DEFAULT_BUFFER_SIZE, loggerFactory);
+        this.buffer = new CheckpointMessageBuffer(DEFAULT_BUFFER_SIZE, loggerFactory);
         this.messageProducer = new RabbitProducer(
                 new RabbitConfigurationProvider(serviceRegistryClient, ServiceRegistryClient.DEFAULT_REFRESH_TIME,
                         RabbitConfigurationProvider.KPI_GENERAL_QUEUE_CONTRACT),
@@ -73,7 +73,7 @@ public final class KpiClientImpl implements KpiClient {
             throw new IllegalArgumentException("Session id has no content");
         }
         Instant now = Instant.now();
-        KpiMessage message = new KpiMessage();
+        CheckpointMessage message = new CheckpointMessage();
         message.setCheckpointCode(checkpointCode);
         message.setSessionId(sessionId);
         message.setClientEventTime(now);
@@ -103,7 +103,7 @@ public final class KpiClientImpl implements KpiClient {
             throw new IllegalArgumentException("Session id has no content");
         }
         Instant now = Instant.now();
-        KpiMessage message = new KpiMessage();
+        CheckpointMessage message = new CheckpointMessage();
         message.setCheckpointCode(checkpointCode);
         message.setSessionId(sessionId);
         message.setClientEventTime(now);
@@ -149,7 +149,7 @@ public final class KpiClientImpl implements KpiClient {
     private void consumeMessages() {
         while (true) {
             try {
-                KpiMessage message = this.buffer.poll();
+                CheckpointMessage message = this.buffer.poll();
                 LOG.debug("Poll kpi message from buffer checkpointCode = {} sessionId = {}",
                         message.getCheckpointCode(), message.getSessionId());
                 if (!this.messageProducer.trySendMessage(message)) {

@@ -13,7 +13,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
-import workflowsuite.kpi.client.KpiMessage;
+import workflowsuite.kpi.client.CheckpointMessage;
 import workflowsuite.kpi.client.MessageProducer;
 import workflowsuite.kpi.client.settings.ConfigurationProvider;
 import workflowsuite.kpi.client.settings.GetConfigurationResult;
@@ -23,14 +23,14 @@ public final class RabbitProducer implements MessageProducer {
     private final ConfigurationProvider<RabbitQueueConfiguration> configurationProvider;
     private final Logger logger;
     private final SocketFactory socketFactory;
-    private final KpiMessageSerializer serializer;
+    private final CheckpointMessageSerializer serializer;
     private Connection connection;
     private Channel channel;
     private String queueName = "";
 
     /**
      * Create instance of {{@link ConfigurationProvider}} class
-     * for processing {{@link KpiMessage}}.
+     * for processing {{@link CheckpointMessage}}.
      * @param configurationProvider The provider for get settings.
      */
     public RabbitProducer(ConfigurationProvider<RabbitQueueConfiguration> configurationProvider,
@@ -38,11 +38,11 @@ public final class RabbitProducer implements MessageProducer {
         this.configurationProvider = configurationProvider;
         this.logger = loggerFactory.getLogger(RabbitProducer.class.getName());
         this.socketFactory = socketFactory;
-        this.serializer = new KpiMessageSerializer();
+        this.serializer = new CheckpointMessageSerializer();
     }
 
     @Override
-    public boolean trySendMessage(KpiMessage message) {
+    public boolean trySendMessage(CheckpointMessage message) {
         this.logger.debug("Entering trySendMessage(checkpointCode={}, sessionId={})",
                 message.getCheckpointCode(), message.getSessionId());
         byte[] messageBytes = this.serializer.serialize(message);

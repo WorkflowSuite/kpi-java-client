@@ -6,9 +6,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 
-final class KpiMessageBuffer {
+final class CheckpointMessageBuffer {
 
-    private final KpiMessage[] buffer;
+    private final CheckpointMessage[] buffer;
     private final Logger logger;
     private int takeIndex;
     private int putIndex;
@@ -17,12 +17,12 @@ final class KpiMessageBuffer {
     private final Condition notEmpty;
 
 
-    KpiMessageBuffer(int capacity, ILoggerFactory loggerFactory) {
+    CheckpointMessageBuffer(int capacity, ILoggerFactory loggerFactory) {
         if (!isPow2(capacity)) {
             throw new IllegalArgumentException("capacity should be pow of 2");
         }
-        this.logger = loggerFactory.getLogger(KpiMessageBuffer.class.getName());
-        this.buffer = new KpiMessage[capacity];
+        this.logger = loggerFactory.getLogger(CheckpointMessageBuffer.class.getName());
+        this.buffer = new CheckpointMessage[capacity];
         this.takeIndex = 0;
         this.putIndex = 0;
         this.count = 0;
@@ -30,7 +30,7 @@ final class KpiMessageBuffer {
         this.notEmpty = this.lock.newCondition();
     }
 
-    public boolean offer(final KpiMessage message) {
+    public boolean offer(final CheckpointMessage message) {
         this.logger.debug("Entering offer()");
         final ReentrantLock sync = this.lock;
         sync.lock();
@@ -54,7 +54,7 @@ final class KpiMessageBuffer {
         return true;
     }
 
-    public KpiMessage poll() throws InterruptedException {
+    public CheckpointMessage poll() throws InterruptedException {
         this.logger.debug("Entering poll()");
         final ReentrantLock sync = this.lock;
         sync.lockInterruptibly();
@@ -63,7 +63,7 @@ final class KpiMessageBuffer {
                 this.logger.debug("Waiting kpi message...");
                 notEmpty.await();
             }
-            KpiMessage message = this.buffer[this.takeIndex];
+            CheckpointMessage message = this.buffer[this.takeIndex];
             this.logger.debug("Leaving poll(): checkpointCode = {} sessionId = {}",
                     message.getCheckpointCode(), message.getSessionId());
             return message;
@@ -73,12 +73,12 @@ final class KpiMessageBuffer {
 
     }
 
-    public void remove(final KpiMessage message) {
+    public void remove(final CheckpointMessage message) {
         this.logger.debug("Entering remove()");
         final ReentrantLock sync = this.lock;
         sync.lock();
         try {
-            final KpiMessage[] items = this.buffer;
+            final CheckpointMessage[] items = this.buffer;
             // if not equal - another thread ovewrite message
             if (items[this.takeIndex] == message) {
                 items[this.takeIndex] = null;
