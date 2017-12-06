@@ -79,7 +79,7 @@ final class CheckpointMessageBuffer {
         sync.lock();
         try {
             final CheckpointMessage[] items = this.buffer;
-            // if not equal - another thread ovewrite message
+            // if not equal - another thread overwrite message
             if (items[this.takeIndex] == message) {
                 items[this.takeIndex] = null;
                 this.takeIndex = inc(this.takeIndex);
