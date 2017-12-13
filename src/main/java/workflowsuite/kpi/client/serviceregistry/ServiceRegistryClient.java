@@ -51,8 +51,8 @@ public final class ServiceRegistryClient {
             connection.setRequestProperty("User-Agent", "Workflow Suite KPI Java Client");
             connection.setUseCaches(false);
             connection.setDefaultUseCaches(false);
-            connection.setConnectTimeout(5000);
-            connection.setReadTimeout(5000);
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
             connection.connect();
 
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -63,7 +63,7 @@ public final class ServiceRegistryClient {
             }
         } catch (IOException ex) {
             this.logger.error("Could not get service endpoint. Server {} contract {}.",
-                    this.serverEndpoint, contract);
+                    this.serverEndpoint, contract, ex);
             return ServiceEndpointsInfo.EMPTY;
         } finally {
             if (connection != null) {
