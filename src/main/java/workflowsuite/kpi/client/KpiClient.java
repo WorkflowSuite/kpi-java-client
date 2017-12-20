@@ -3,6 +3,9 @@ package workflowsuite.kpi.client;
 import java.time.Duration;
 
 public interface KpiClient {
+
+    Duration MAX_DURATION = Duration.ofMillis(Long.MAX_VALUE / 10000);
+
     /**
      * Registers a checkpoint crossing fact for an explicitly specified session.
      * @param checkpointCode Unique checkpoint code. If the code is invalid, the method does nothing.
