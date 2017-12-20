@@ -50,6 +50,7 @@ public final class ServiceRegistryClient {
             connection.setRequestProperty("Content-Type", "application/xml; charset=utf-8");
             connection.setRequestProperty("Accept", "application/xml");
             connection.setRequestProperty("User-Agent", "Workflow Suite KPI Java Client");
+            connection.setRequestProperty("Connection", "close");
             connection.setUseCaches(false);
             connection.setDefaultUseCaches(false);
             connection.setConnectTimeout(10000);
