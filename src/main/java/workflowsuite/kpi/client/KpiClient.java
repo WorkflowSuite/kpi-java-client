@@ -4,7 +4,7 @@ import java.time.Duration;
 
 public interface KpiClient {
 
-    Duration MAX_DURATION = Duration.ofMillis(Long.MAX_VALUE / 10000);
+    Duration MAX_DURATION = Duration.ofMillis(Long.MAX_VALUE / 10000 - 1);
 
     /**
      * Registers a checkpoint crossing fact for an explicitly specified session.
