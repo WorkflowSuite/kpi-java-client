@@ -148,9 +148,13 @@ public final class KpiClientImpl implements KpiClient {
             throw new IllegalArgumentException("Duration is null");
         }
         Instant now = Instant.now();
+        Duration normalDuration = duration;
+        if (normalDuration.compareTo(KpiClient.MAX_DURATION) == 1) {
+            normalDuration = KpiClient.MAX_DURATION;
+        }
         DurationMetricMessage message = new DurationMetricMessage();
         message.setMetricCode(metricCode);
-        message.setDuration(duration);
+        message.setDuration(normalDuration);
         message.setClientEventTime(now);
 
         Instant adjustedTime = now.plus(this.timeSynchronizer.getOffset());
