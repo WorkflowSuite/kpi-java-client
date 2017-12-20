@@ -39,6 +39,7 @@ public final class ServiceRegistryClient {
      * @return The endpoints.
      */
     public ServiceEndpointsInfo getServiceEndpointsInfo(String contract) {
+        this.logger.debug("Entering getServiceEndpointsInfo(contract={})", contract);
         HttpURLConnection connection = null;
         String query = this.serverEndpoint + SERVICE_REGISTRY_BASE_RESOURCE + "serviceendpoints?contract="
                 + contract + "&client=" + this.clientName;
@@ -58,12 +59,13 @@ public final class ServiceRegistryClient {
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 ServiceEndpointInfosXmlParser serviceInfosParser = new ServiceEndpointInfosXmlParser();
                 try (InputStream inputStream = connection.getInputStream()) {
+                    this.logger.debug("Leaving getServiceEndpointsInfo(contract={})", contract);
                     return serviceInfosParser.parse(inputStream);
                 }
             }
         } catch (IOException ex) {
-            this.logger.error("Could not get service endpoint. Server {} contract {}.",
-                    this.serverEndpoint, contract, ex);
+            this.logger.error("Could not get service endpoint. Server {} contract {} query {}.",
+                    this.serverEndpoint, contract, query, ex);
             return ServiceEndpointsInfo.EMPTY;
         } finally {
             if (connection != null) {
