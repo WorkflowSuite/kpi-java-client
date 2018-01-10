@@ -80,7 +80,7 @@ public final class KpiClientImpl implements KpiClient {
      */
     @Override
     public boolean onCheckpoint(String checkpointCode, String sessionId) {
-        LOG.debug("Entering onCheckpoint(checkpointCode={}, sessionId = {})", checkpointCode, sessionId);
+        LOG.debug("Entering onCheckpoint(checkpointCode = {}, sessionId = {})", checkpointCode, sessionId);
         if (checkpointCode == null || checkpointCode.isEmpty()) {
             throw new IllegalArgumentException("Checkpoint code has no content");
         }
@@ -110,7 +110,7 @@ public final class KpiClientImpl implements KpiClient {
      */
     @Override
     public boolean unreachableCheckpoint(String checkpointCode, String sessionId) {
-        LOG.debug("Entering unreachableCheckpoint(checkpointCode={}, sessionId = {})", checkpointCode, sessionId);
+        LOG.debug("Entering unreachableCheckpoint(checkpointCode = {}, sessionId = {})", checkpointCode, sessionId);
         if (checkpointCode == null || checkpointCode.isEmpty()) {
             throw new IllegalArgumentException("Checkpoint code has no content");
         }
@@ -140,7 +140,7 @@ public final class KpiClientImpl implements KpiClient {
      */
     @Override
     public boolean traceDuration(String metricCode, Duration duration) {
-        LOG.debug("Entering traceDuration(metricCode={}, value = {} ms)", metricCode, duration);
+        LOG.debug("Entering traceDuration(metricCode = {}, value = {} ms)", metricCode, duration.toMillis());
         if (metricCode == null || metricCode.isEmpty()) {
             throw new IllegalArgumentException("Metric code has no content");
         }
@@ -190,15 +190,15 @@ public final class KpiClientImpl implements KpiClient {
         while (true) {
             try {
                 DurationMetricMessage message = this.durationMetricBuffer.poll();
-                LOG.debug("Poll message from duration metric message buffer metricCode = {} duration = {}",
-                        message.getMetricCode(), message.getDuration());
+                LOG.debug("Poll message from duration metric message buffer metricCode = {} duration = {} ms",
+                        message.getMetricCode(), message.getDuration().toMillis());
                 if (!this.durationMetricMessageProducer.trySendMessage(message)) {
-                    LOG.warn("Can not send duration metric message metricCode = {} duration = {}",
-                            message.getMetricCode(), message.getDuration());
+                    LOG.warn("Can not send duration metric message metricCode = {} duration = {} ms",
+                            message.getMetricCode(), message.getDuration().toMillis());
                     Thread.sleep(SEND_FAILURE_RELAXATION_TIMEOUT_MILLIS);
                 } else {
-                    LOG.debug("Remove message from duration metric message buffer metricCode = {} duration = {}",
-                            message.getMetricCode(), message.getDuration());
+                    LOG.debug("Remove message from duration metric message buffer metricCode = {} duration = {} ms",
+                            message.getMetricCode(), message.getDuration().toMillis());
                     this.durationMetricBuffer.remove(message);
                 }
             } catch (InterruptedException e) {
